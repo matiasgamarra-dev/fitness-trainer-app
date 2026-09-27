@@ -12,7 +12,7 @@
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `704e387 - chore(typescript): agrega configuración base y tsconfig por workspace (7 seconds ago)` |
+| **Último commit** | `c41335f - chore(lint): configura ESLint 10 con flat config y Prettier (8 seconds ago)` |
 | **Cambios sin commitear** | ✅ No |
 | **Última actualización** | 2026-09-27 |
 
