@@ -15,11 +15,7 @@
     "lint:fix": "eslint . --fix --no-error-on-unmatched-pattern",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "docs:changelog": "node scripts/docs-changelog.js",
-    "docs:roadmap": "node scripts/docs-roadmap.js",
-    "docs:context": "node scripts/docs-context.js",
-    "docs:check": "node scripts/docs-check.js",
-    "docs:sync": "node scripts/docs-sync.js"
+"docs": "node scripts/docs.mjs"
   },
   "keywords": [
     "fitness",

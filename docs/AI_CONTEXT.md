@@ -12,8 +12,8 @@
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `c47ada9 - docs: cierra Sprint 0.5, actualiza CHANGELOG y mejora tipado de API (13 seconds ago)` |
-| **Cambios sin commitear** | ✅ No |
+| **Último commit** | `2081959 - docs: sincroniza AI_CONTEXT con último commit (2 hours ago)` |
+| **Cambios sin commitear** | ⚠️ Sí |
 | **Última actualización** | 2026-09-27 |
 
 
