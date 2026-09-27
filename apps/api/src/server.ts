@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { healthRouter } from "./routes/health.js";
 
-export function createServer() {
+export function createServer(): express.Express {
   const app = express();
 
   // Middleware base

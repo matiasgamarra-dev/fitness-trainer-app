@@ -4,9 +4,9 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ## Estado actual
 
-**Fase**: 0 — Fundaciones
-**Sprint**: 0 — Setup del proyecto
-**Progreso global**: 15%
+**Fase**: 0 — Fundaciones ✅ (COMPLETADA)
+**Sprint**: 1 — Autenticación (PRÓXIMO)
+**Progreso global**: 20%
 
 ---
 
@@ -20,24 +20,34 @@ Plan de desarrollo continuo, por fases y sprints.
 - [x] Documentación inicial (README, LICENSE, CONTRIBUTING)
 - [x] Docs extendidos (ARCHITECTURE, API, DEVELOPMENT)
 
-### Sprint 0.5 — Planificación (EN CURSO)
+### Sprint 0.5 — Planificación + Setup técnico ✅ (COMPLETADO)
 
+**Planificación:**
 - [x] Documento de visión (PRODUCT.md)
 - [x] Modelo de datos (DATA_MODEL.md)
 - [x] Stack tecnológico (STACK.md)
 - [x] Wireframes (WIREFRAMES.md)
 - [x] Roadmap detallado (este archivo)
-- [ ] Configurar TypeScript en el proyecto
-- [ ] Configurar ESLint + Prettier
-- [ ] Configurar testing (Jest + Vitest)
-- [ ] Configurar base de datos local (PostgreSQL)
-- [ ] Configurar Prisma
+
+**Setup técnico:**
+- [x] Reestructurar a monorepo (apps/api, apps/web, packages/shared)
+- [x] Configurar npm workspaces
+- [x] Configurar TypeScript (raíz + apps)
+- [x] Configurar ESLint + Prettier
+- [x] Configurar scripts de desarrollo
+- [x] Instalar dependencias base del backend (Express)
+- [x] Primer endpoint "hola mundo" funcionando
 
 ---
 
 ## Fase 1 — MVP (Semanas 2-6)
 
 ### Sprint 1 — Autenticación (Semana 2)
+
+**Prerequisitos (movidos desde Sprint 0.5):**
+- [ ] Configurar base de datos local (PostgreSQL)
+- [ ] Configurar Prisma
+- [ ] Configurar testing (Jest + Vitest)
 
 **Backend:**
 - [ ] Modelo `User` en Prisma

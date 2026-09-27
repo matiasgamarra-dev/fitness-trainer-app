@@ -5,6 +5,11 @@ Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Sprint 0.5: monorepo con npm workspaces (apps/api, apps/web, packages/shared)
+- Configuración de TypeScript base + tsconfig por workspace
+- ESLint 10 con flat config + Prettier
+- Servidor Express 5 con endpoint `GET /api/v1/health`
+- Validación de variables de entorno con Zod
 - Documentación inicial completa
 - Estructura profesional de carpetas
 - LICENSE MIT
