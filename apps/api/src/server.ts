@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { healthRouter } from "./routes/health.js";
+import authRouter from "./routes/auth.js";
 
 export function createServer(): express.Express {
   const app = express();
@@ -13,6 +14,7 @@ export function createServer(): express.Express {
 
   // Rutas
   app.use("/api/v1", healthRouter);
+  app.use("/api/v1/auth", authRouter);
 
   return app;
 }
