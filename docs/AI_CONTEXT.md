@@ -12,8 +12,8 @@
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `90b85eb - docs: completa documentación del producto y stack técnico (14 minutes ago)` |
-| **Cambios sin commitear** | ⚠️ Sí |
+| **Último commit** | `794a8ba - chore(monorepo): configura npm workspaces con apps/* y packages/* (11 seconds ago)` |
+| **Cambios sin commitear** | ✅ No |
 | **Última actualización** | 2026-09-27 |
 
 
