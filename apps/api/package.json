@@ -6,10 +6,20 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "echo \"API dev próximamente\" && exit 0",
-    "build": "echo \"API build próximamente\" && exit 0",
-    "start": "node dist/index.js"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "tsx": "^4.23.15"
+  }
 }
