@@ -12,7 +12,7 @@
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `627de90 - feat(api): agrega servidor Express con endpoint /api/v1/health (8 seconds ago)` |
+| **Último commit** | `9e8cd8c - chore(api): elimina archivo env.ts duplicado en src/ (25 seconds ago)` |
 | **Cambios sin commitear** | ✅ No |
 | **Última actualización** | 2026-09-27 |
 
