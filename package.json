@@ -1,13 +1,18 @@
 {
   "name": "fitness-trainer-app",
   "version": "0.1.0",
-  "description": "Aplicación de entrenamiento físico con rutinas personalizadas y seguimiento de progreso.",
+  "description": "Aplicación de seguimiento personal que integra nutrición, entrenamiento y progreso físico.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "test": "echo \"Sin tests aún\" && exit 0",
-    "lint": "echo \"Sin linter aún\" && exit 0"
+    "lint": "echo \"Sin linter aún\" && exit 0",
+    "docs:changelog": "node scripts/docs-changelog.js",
+    "docs:roadmap": "node scripts/docs-roadmap.js",
+    "docs:context": "node scripts/docs-context.js",
+    "docs:check": "node scripts/docs-check.js",
+    "docs:sync": "node scripts/docs-sync.js"
   },
   "keywords": ["fitness", "workout", "training", "health", "pwa"],
   "author": "Matías Gamarra",
