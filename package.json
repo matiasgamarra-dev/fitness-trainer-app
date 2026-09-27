@@ -11,8 +11,10 @@
     "dev": "echo \"Próximamente: script dev del monorepo\" && exit 0",
     "build": "echo \"Próximamente: script build del monorepo\" && exit 0",
     "test": "echo \"Sin tests aún\" && exit 0",
-    "lint": "echo \"Sin linter aún\" && exit 0",
-    "format": "echo \"Sin formatter aún\" && exit 0",
+    "lint": "eslint . --no-error-on-unmatched-pattern",
+    "lint:fix": "eslint . --fix --no-error-on-unmatched-pattern",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "docs:changelog": "node scripts/docs-changelog.js",
     "docs:roadmap": "node scripts/docs-roadmap.js",
     "docs:context": "node scripts/docs-context.js",
@@ -41,7 +43,13 @@
     "npm": ">=10"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.3",
-    "typescript": "^5.9.3"
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1"
   }
 }
