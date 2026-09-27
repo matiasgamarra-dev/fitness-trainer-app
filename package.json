@@ -1,0 +1,23 @@
+{
+  "name": "fitness-trainer-app",
+  "version": "0.1.0",
+  "description": "Aplicación de entrenamiento físico con rutinas personalizadas y seguimiento de progreso.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "test": "echo \"Sin tests aún\" && exit 0",
+    "lint": "echo \"Sin linter aún\" && exit 0"
+  },
+  "keywords": ["fitness", "workout", "training", "health", "pwa"],
+  "author": "Matías Gamarra",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matiasgamarra-dev/fitness-trainer-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/matiasgamarra-dev/fitness-trainer-app/issues"
+  },
+  "homepage": "https://github.com/matiasgamarra-dev/fitness-trainer-app#readme"
+}
