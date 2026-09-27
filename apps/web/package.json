@@ -1,0 +1,14 @@
+{
+  "name": "@fitness-trainer/web",
+  "version": "0.1.0",
+  "description": "Frontend web de Fitness Trainer App (React + Vite + TypeScript)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo \"Web dev próximamente\" && exit 0",
+    "build": "echo \"Web build próximamente\" && exit 0",
+    "preview": "echo \"Web preview próximamente\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

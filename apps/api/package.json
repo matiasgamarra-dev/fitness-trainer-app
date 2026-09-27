@@ -1,0 +1,15 @@
+{
+  "name": "@fitness-trainer/api",
+  "version": "0.1.0",
+  "description": "Backend API de Fitness Trainer App (Express + TypeScript)",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "echo \"API dev próximamente\" && exit 0",
+    "build": "echo \"API build próximamente\" && exit 0",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

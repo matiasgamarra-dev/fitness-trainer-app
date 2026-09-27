@@ -1,0 +1,14 @@
+{
+  "name": "@fitness-trainer/shared",
+  "version": "0.1.0",
+  "description": "Tipos, constantes y utilidades compartidas entre API y Web",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo \"Shared build próximamente\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
