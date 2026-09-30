@@ -71,7 +71,7 @@ router.get("/", verifyUser, async (req: AuthRequest, res: Response) => {
  *
  * Reglas:
  *   - `name` es editable siempre.
- *   - `birth_date`, `sex`, `height_cm`, `goal` son writeOnce:
+ *   - `birth_date`, `sex`, `height_cm`, `goal`, `days_per_week` son writeOnce:
  *     si ya tienen valor en DB, no se pueden cambiar vía API.
  *     Contactar al admin para modificarlos.
  */
@@ -112,7 +112,7 @@ router.put("/", verifyUser, async (req: AuthRequest, res: Response) => {
     // Obtener el perfil actual para verificar campos bloqueados
     const { data: current, error: fetchError } = await supabaseAdmin
       .from("users")
-      .select("name, birth_date, sex, height_cm, goal")
+      .select("name, birth_date, sex, height_cm, goal, days_per_week")
       .eq("id", userId)
       .single();
 
@@ -125,7 +125,7 @@ router.put("/", verifyUser, async (req: AuthRequest, res: Response) => {
     }
 
     // Campos writeOnce: una vez seteados, no se pueden cambiar
-    const writeOnceFields = ["birth_date", "sex", "height_cm", "goal"] as const;
+    const writeOnceFields = ["birth_date", "sex", "height_cm", "goal", "days_per_week"] as const;
     const blockedFields: string[] = [];
 
     for (const field of writeOnceFields) {

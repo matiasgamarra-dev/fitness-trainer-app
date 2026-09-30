@@ -19,6 +19,7 @@ export interface Profile {
   sex: "male" | "female" | "other" | null;
   height_cm: number | null;
   goal: "lose_fat" | "gain_muscle" | "maintain" | null;
+  days_per_week: number | null;
   created_at: string;
   updated_at: string;
 }

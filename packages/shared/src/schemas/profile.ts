@@ -9,6 +9,7 @@ export const profileUpdateSchema = z.object({
   sex: sexSchema.optional(),
   height_cm: z.number().positive().max(300).optional(),
   goal: goalSchema.optional(),
+  days_per_week: z.number().int().min(1).max(7).optional(),
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
