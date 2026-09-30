@@ -7,32 +7,34 @@ Decisiones técnicas del proyecto y por qué se eligieron.
 | Capa | Tecnología |
 |---|---|
 | Frontend | React + Vite + TypeScript |
-| Estilos | Tailwind CSS |
+| Estilos | Tailwind CSS v4 |
 | Estado global | Zustand |
 | Data fetching | React Query (TanStack Query) |
+| Routing | React Router v7 |
 | Gráficos | Recharts |
 | Backend | Node.js + Express + TypeScript |
-| ORM | Prisma |
-| Base de datos | PostgreSQL |
-| Autenticación | JWT + bcrypt |
+| Base de datos | **Supabase (PostgreSQL cloud)** |
+| Cliente DB | **@supabase/supabase-js** |
+| Autenticación | **Supabase Auth** (Email + Google OAuth) |
+| Verificación JWT | **jose + JWKS remoto** |
 | Validación | Zod |
-| Testing | Vitest (front) + Jest (back) |
+| Testing | **Vitest** (backend + frontend) |
 | CI/CD | GitHub Actions |
 | Deploy front | Vercel |
 | Deploy back | Railway |
-| DB host | Supabase o Neon |
 
 ## Justificación de cada decisión
 
 ### React + Vite + TypeScript
 - **React**: estándar de la industria, enorme comunidad
 - **Vite**: build ultrarrápido, mejor DX que CRA
-- **TypeScript**: menos bugs, mejor autocompletado, más profesional
+- **TypeScript**: menos bugs, mejor autocompletado
 
-### Tailwind CSS
+### Tailwind CSS v4
 - Prototipado rápido
 - Sin CSS a mano
 - Consistencia visual
+- v4 usa PostCSS con `@tailwindcss/postcss`
 
 ### Zustand
 - Más simple que Redux
@@ -44,44 +46,38 @@ Decisiones técnicas del proyecto y por qué se eligieron.
 - Maneja loading/error states
 - Perfecto para APIs
 
-### Recharts
-- Fácil de usar
-- Bonito por defecto
-- Basado en SVG (liviano)
+### Supabase
+- **Auth integrado**: email, Google OAuth, y más providers en el futuro
+- **PostgreSQL administrado**: sin instalar nada localmente
+- **Row Level Security**: seguridad a nivel de fila nativa
+- **Tier gratuito generoso**: 500 MB de DB, 50.000 usuarios activos
+- **SDK oficial**: `@supabase/supabase-js` con tipos TypeScript
 
-### Node.js + Express + TypeScript
-- Mismo lenguaje que front
-- Express es minimalista y flexible
-- TypeScript en back evita errores de tipos
+### @supabase/supabase-js
+- Cliente único para auth + DB + storage
+- No requiere descargar binarios (a diferencia de Prisma)
+- Se usa tanto en backend como en frontend
+- Tipos autogenerados desde el schema
 
-### Prisma
-- ORM moderno con tipado
-- Migraciones declarativas
-- Autocompletado en queries
-
-### PostgreSQL
-- Relacional, ideal para datos del negocio
-- Gratis, robusto, escalable
-- Soporta JSONB si hace falta flexibilidad
-
-### JWT + bcrypt
-- Estándar de autenticación
-- Stateless (no guarda sesiones)
-- bcrypt para hashear passwords
+### jose + JWKS
+- Verificación de JWT **sin guardar secretos**
+- Descarga las claves públicas desde Supabase
+- Soporta rotación de claves transparente
+- Estándar de la industria para OAuth/JWT
 
 ### Zod
 - Validación de datos en runtime
 - Se integra con TypeScript
 - Reutilizable front + back
 
-### Vitest + Jest
-- Vitest: rápido, integrado con Vite
-- Jest: estándar en Node.js
-- Juntos cubren todo
+### Vitest
+- **Un solo runner** para backend y frontend
+- Rápido (usa esbuild internamente)
+- Integrado con Vite
+- Compatible con Testing Library
 
 ### GitHub Actions
 - CI/CD gratis para repos públicos
-- Ya configurado en `.github/workflows/ci.yml`
 - Corre tests en cada push
 
 ### Vercel + Railway
@@ -89,25 +85,11 @@ Decisiones técnicas del proyecto y por qué se eligieron.
 - Tier gratis generoso
 - HTTPS automático
 
-## Alternativas consideradas
-
-| Decisión | Alternativa | Por qué NO |
-|---|---|---|
-| React | Vue, Svelte | React tiene más demanda laboral |
-| TypeScript | JavaScript puro | TS es el estándar en proyectos serios |
-| Vite | Create React App | CRA está deprecado |
-| Tailwind | CSS Modules, Styled Components | Tailwind es más rápido de iterar |
-| Zustand | Redux Toolkit | Zustand es más simple |
-| PostgreSQL | MongoDB | Los datos son relacionales |
-| Prisma | TypeORM, Sequelize | Prisma tiene mejor DX |
-| Express | Fastify, NestJS | Express es el más conocido |
-| Vercel | Netlify | Vercel optimizado para Next/React |
-
 ## Convenciones de código
 
-- **Nombres de archivos**: kebab-case (`user-profile.tsx`)
+- **Archivos**: kebab-case (`user-profile.tsx`)
 - **Componentes**: PascalCase (`UserProfile`)
-- **Funciones y variables**: camelCase (`getUserById`)
+- **Funciones**: camelCase (`getUserById`)
 - **Constantes**: UPPER_SNAKE_CASE (`MAX_RETRIES`)
 - **Rutas**: kebab-case (`/user-profile`)
 
@@ -119,30 +101,25 @@ Decisiones técnicas del proyecto y por qué se eligieron.
   - GitLens
   - Error Lens
   - Tailwind CSS IntelliSense
+  - Supabase (oficial)
 - **Postman / Insomnia** para probar API
-- **TablePlus / DBeaver** para ver la DB
 
-## Comandos previstos
+## Comandos
 
 ```bash
 # Desarrollo
-npm run dev
-
-# Build
-npm run build
+npm run dev -w @fitness-trainer/api
+npm run dev -w @fitness-trainer/web
 
 # Tests
-npm test
+npm test -w @fitness-trainer/api
+npm test -w @fitness-trainer/web
 
-# Lint
+# Typecheck
+npm run typecheck -w @fitness-trainer/api
+npm run typecheck -w @fitness-trainer/web
+
+# Lint + format
 npm run lint
-
-# Formatear
 npm run format
-
-# Migraciones DB
-npx prisma migrate dev
-npx prisma migrate deploy
-
-# Ver DB en UI
-npx prisma studio
+```

@@ -4,13 +4,13 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ## Estado actual
 
-**Fase**: 0 — Fundaciones ✅ (COMPLETADA)
-**Sprint**: 1 — Autenticación (PRÓXIMO)
-**Progreso global**: 20%
+**Fase**: 1 — MVP
+**Sprint**: 2 — Perfil y Onboarding (PRÓXIMO)
+**Progreso global**: 25%
 
 ---
 
-## Fase 0 — Fundaciones (Semana 1)
+## Fase 0 — Fundaciones (Semana 1) ✅
 
 ### Sprint 0 — Setup ✅ (COMPLETADO)
 
@@ -37,55 +37,65 @@ Plan de desarrollo continuo, por fases y sprints.
 - [x] Configurar scripts de desarrollo
 - [x] Instalar dependencias base del backend (Express)
 - [x] Primer endpoint "hola mundo" funcionando
+- [x] Script único de docs (`docs.mjs`)
 
 ---
 
 ## Fase 1 — MVP (Semanas 2-6)
 
-### Sprint 1 — Autenticación (Semana 2)
+### Sprint 1 — Autenticación ✅ (COMPLETADO)
 
-**Prerequisitos (movidos desde Sprint 0.5):**
-- [ ] Configurar base de datos local (PostgreSQL)
-- [ ] Configurar Prisma
-- [ ] Configurar testing (Jest + Vitest)
+**Infraestructura:**
+- [x] Crear proyecto Supabase
+- [x] Configurar Google OAuth
+- [x] Conectar Google con Supabase
+- [x] Crear tabla `users` + RLS + triggers
 
 **Backend:**
-- [ ] Modelo `User` en Prisma
-- [ ] Endpoint `POST /auth/register`
-- [ ] Endpoint `POST /auth/login`
-- [ ] Endpoint `GET /auth/me`
-- [ ] Middleware JWT
-- [ ] Hashing con bcrypt
-- [ ] Validación con Zod
+- [x] Instalar `@supabase/supabase-js`
+- [x] Configurar cliente Supabase (`supabaseAdmin`)
+- [x] Instalar `jose` para verificar JWT
+- [x] Middleware `verifyUser` con JWKS
+- [x] Endpoint `GET /api/v1/auth/me`
+- [x] Configurar Vitest
+- [x] Tests de health + auth (5/5)
 
 **Frontend:**
-- [ ] Pantalla Login
-- [ ] Pantalla Registro
-- [ ] Store de autenticación (Zustand)
-- [ ] Guard de rutas protegidas
-- [ ] Interceptor de axios con JWT
+- [x] Setup Vite + React + TypeScript + Tailwind v4
+- [x] Cliente Supabase
+- [x] Store Zustand (`useAuthStore`)
+- [x] Pantalla Login
+- [x] Pantalla Registro
+- [x] Pantalla AuthCallback (OAuth)
+- [x] Pantalla Dashboard
+- [x] ProtectedRoute
+- [x] React Router
+- [x] Tests de Login + Register (4/4)
 
-**Tests:**
-- [ ] Tests de auth (backend)
-- [ ] Tests de componentes Login/Registro
+**Docs:**
+- [x] docs/AUTH.md
+- [x] docs/DEPLOYMENT.md
+- [x] docs/SECURITY.md
 
-### Sprint 2 — Perfil y Onboarding (Semana 3)
+### Sprint 2 — Perfil y Onboarding (Semana 3) ← PRÓXIMO
 
 **Backend:**
-- [ ] Modelo `BodyMeasurement`
+- [ ] Modelo `BodyMeasurement` (SQL en Supabase)
 - [ ] Endpoints de perfil (GET/PUT)
 - [ ] Endpoints de medidas (CRUD)
+- [ ] Tests
 
 **Frontend:**
 - [ ] Onboarding (4 pasos)
 - [ ] Pantalla de perfil
 - [ ] Edición de datos
+- [ ] Tests
 
 ### Sprint 3 — Rutinas (Semana 4)
 
 **Backend:**
-- [ ] Modelos `Exercise`, `Routine`, `RoutineExercise`
-- [ ] Seed de ejercicios base (~50 ejercicios)
+- [ ] Tablas `exercises`, `routines`, `routine_exercises`
+- [ ] Seed de ~50 ejercicios base
 - [ ] CRUD de rutinas
 - [ ] Endpoints de ejercicios
 
@@ -98,7 +108,7 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 4 — Entrenamiento (Semana 5)
 
 **Backend:**
-- [ ] Modelos `WorkoutSession`, `WorkoutSet`
+- [ ] Tablas `workout_sessions`, `workout_sets`
 - [ ] Endpoints de sesiones
 - [ ] Endpoint de registros de series
 
@@ -111,23 +121,21 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 5 — Nutrición (Semana 6)
 
 **Backend:**
-- [ ] Modelos `Food`, `Meal`, `MealItem`, `NutritionGoal`
-- [ ] Seed de alimentos base (~200 alimentos)
+- [ ] Tablas `foods`, `meals`, `meal_items`, `nutrition_goals`
+- [ ] Seed de ~200 alimentos
 - [ ] Endpoints de comidas
 - [ ] Buscador de alimentos
-- [ ] Calculadora de macros
 
 **Frontend:**
 - [ ] Pantalla de nutrición diaria
 - [ ] Buscador de alimentos
 - [ ] Añadir comidas
-- [ ] Configurar objetivo nutricional
 
 ### Sprint 6 — Progreso y Deploy (Semana 7)
 
 **Frontend:**
 - [ ] Dashboard con resumen
-- [ ] Pantalla de progreso con gráficos
+- [ ] Pantalla de progreso con gráficos (Recharts)
 - [ ] Comparativa de períodos
 
 **Deploy:**
@@ -160,19 +168,19 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ### Sprint 10 — PWA y offline
 - [ ] Configurar service worker
-- [ ] Modo offline (registros locales)
+- [ ] Modo offline
 - [ ] Sincronización al reconectar
 - [ ] Instalable en móvil
 
-### Sprint 11 — Notificaciones y recordatorios
+### Sprint 11 — Notificaciones
 - [ ] Recordatorio de entrenamiento
 - [ ] Recordatorio de comidas
 - [ ] Notificaciones push
 
-### Sprint 12 — Exportación y respaldo
+### Sprint 12 — Exportación
 - [ ] Exportar datos a CSV
 - [ ] Exportar datos a JSON
-- [ ] Importar desde otras apps (formato estándar)
+- [ ] Importar desde otras apps
 
 ---
 
@@ -182,36 +190,29 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Roles: user / trainer / admin
 - [ ] Panel de entrenador
 - [ ] Gestión de clientes
-- [ ] Asignar rutinas a clientes
-- [ ] Ver progreso de clientes
 
 ### Sprint 14 — Chat y feedback
 - [ ] Chat entrenador-cliente
 - [ ] Comentarios en entrenamientos
-- [ ] Feedback en rutinas
 
 ### Sprint 15 — Integraciones
 - [ ] Apple Health
 - [ ] Google Fit
 - [ ] Strava
-- [ ] Importar desde MyFitnessPal
 
 ### Sprint 16 — IA y recomendaciones
 - [ ] Recomendaciones de rutinas
 - [ ] Sugerencias nutricionales
 - [ ] Detección de estancamiento
-- [ ] Ajuste automático de cargas
 
 ### Sprint 17 — Social
 - [ ] Amigos / seguidores
 - [ ] Compartir progreso
 - [ ] Retos y desafíos
-- [ ] Ranking semanal
 
 ### Sprint 18 — Monetización (opcional)
 - [ ] Plan gratis vs premium
 - [ ] Suscripciones (Stripe)
-- [ ] Marketplace de entrenadores
 
 ---
 
@@ -221,7 +222,6 @@ Plan de desarrollo continuo, por fases y sprints.
 - Video llamadas con entrenadores
 - Realidad aumentada para forma de ejercicios
 - Comunidad con foros
-- Modo competencia
 - Integración con gimnasios
 - Programa de referidos
 
@@ -239,9 +239,9 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ## Métricas por fase
 
-| Fase | Duración | Objetivo |
-|---|---|---|
-| Fase 0 | 1 semana | Proyecto documentado y listo para codear |
-| Fase 1 | 6 semanas | MVP funcional y deployado |
-| Fase 2 | 5 semanas | Producto pulido y completo |
-| Fase 3 | 12 semanas | Plataforma profesional |
+| Fase | Duración | Objetivo | Estado |
+|---|---|---|---|
+| Fase 0 | 1 semana | Proyecto documentado y listo | ✅ |
+| Fase 1 | 6 semanas | MVP funcional y deployado | 🟡 En curso |
+| Fase 2 | 5 semanas | Producto pulido y completo | ⏳ |
+| Fase 3 | 12 semanas | Plataforma profesional | ⏳ |

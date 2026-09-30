@@ -10,6 +10,7 @@
  *   npm run docs -- context            → regenera AI_CONTEXT.md
  *   npm run docs -- changelog --type=feat --message="..."
  *   npm run docs -- roadmap --item="..."
+ *   npm run docs -- new-docs           → crea AUTH, DEPLOYMENT, SECURITY
  *   npm run docs -- all                → context + check + sync
  *   npm run docs -- help               → muestra ayuda
  *
@@ -77,6 +78,9 @@ const REQUIRED_DOCS = [
   { file: "docs/ARCHITECTURE.md", minSize: 500 },
   { file: "docs/API.md", minSize: 500 },
   { file: "docs/DEVELOPMENT.md", minSize: 500 },
+  { file: "docs/AUTH.md", minSize: 500 },
+  { file: "docs/DEPLOYMENT.md", minSize: 500 },
+  { file: "docs/SECURITY.md", minSize: 500 },
 ];
 
 /** Tipos de commit → sección del CHANGELOG */
@@ -333,6 +337,291 @@ function cmdRoadmap({ item }) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Comando: new-docs
+// ─────────────────────────────────────────────────────────────
+
+const NEW_DOCS = [
+  {
+    path: "docs/AUTH.md",
+    content: `# 🔐 Autenticación
+
+Documentación del sistema de autenticación de Fitness Trainer App.
+
+## Stack
+
+| Componente | Tecnología |
+|---|---|
+| **Auth provider** | Supabase Auth |
+| **Providers habilitados** | Email + Password, Google OAuth |
+| **Almacenamiento de token** | localStorage (default de Supabase) |
+| **Verificación backend** | \`jose\` + JWKS remoto |
+| **Estado frontend** | Zustand (\`useAuthStore\`) |
+
+## Flujo de autenticación
+
+### Registro con email + password
+
+\`\`\`
+[Usuario] → llena formulario → [Frontend]
+    ↓ supabase.auth.signUp()
+[Supabase Auth] → crea en auth.users
+    ↓ trigger handle_new_user
+[Supabase DB] → crea en public.users
+    ↓ devuelve session (si email confirmation OFF)
+[Frontend] → guarda session en Zustand + localStorage
+\`\`\`
+
+### Login con Google OAuth
+
+\`\`\`
+[Usuario] → click "Continuar con Google" → [Frontend]
+    ↓ supabase.auth.signInWithOAuth({ provider: 'google' })
+[Google] → muestra consent screen
+    ↓ redirige a: https://ourssnznqjladulhmpeq.supabase.co/auth/v1/callback
+[Supabase Auth] → valida con Google → crea/actualiza user
+    ↓ trigger handle_new_user
+[Supabase DB] → crea en public.users
+    ↓ redirige a: http://localhost:5173/auth/callback
+[Frontend AuthCallback] → detecta session → navigate a /dashboard
+\`\`\`
+
+### Request autenticado al backend
+
+\`\`\`
+[Usuario] → acción que requiere auth → [Frontend]
+    ↓ axios request con header: Authorization: Bearer <jwt>
+[Backend API] → middleware verifyUser
+    ↓ jose.jwtVerify(token, JWKS, { issuer, audience })
+[Supabase JWKS] → devuelve clave pública
+    ↓ verifica firma + expiración
+[Backend API] → adjunta user al req → continúa con el handler
+\`\`\`
+
+## Estructura de archivos
+
+### Backend
+
+| Archivo | Propósito |
+|---|---|
+| \`apps/api/src/middleware/auth.ts\` | Middleware \`verifyUser\` con jose + JWKS |
+| \`apps/api/src/routes/auth.ts\` | Endpoint \`GET /api/v1/auth/me\` |
+| \`apps/api/src/config/supabase.ts\` | Cliente Supabase admin |
+| \`apps/api/src/config/env.ts\` | Validación de variables con Zod |
+
+### Frontend
+
+| Archivo | Propósito |
+|---|---|
+| \`apps/web/src/lib/supabase.ts\` | Cliente Supabase |
+| \`apps/web/src/stores/auth.ts\` | Store Zustand de auth |
+| \`apps/web/src/pages/Login.tsx\` | Pantalla de login |
+| \`apps/web/src/pages/Register.tsx\` | Pantalla de registro |
+| \`apps/web/src/pages/AuthCallback.tsx\` | Callback de OAuth |
+| \`apps/web/src/pages/Dashboard.tsx\` | Dashboard protegido |
+| \`apps/web/src/components/ProtectedRoute.tsx\` | Guard de rutas |
+
+## Endpoints
+
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | \`/api/v1/auth/me\` | ✅ Bearer | Devuelve perfil del usuario autenticado |
+
+## Variables de entorno
+
+### Backend (\`apps/api/.env\`)
+
+\`\`\`env
+NODE_ENV=development
+PORT=3000
+SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+\`\`\`
+
+### Frontend (\`apps/web/.env\`)
+
+\`\`\`env
+VITE_SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...
+\`\`\`
+`,
+  },
+  {
+    path: "docs/DEPLOYMENT.md",
+    content: `# 🚀 Deployment
+
+Guía para deployar Fitness Trainer App a producción.
+
+## Servicios
+
+| Componente | Servicio | Tier |
+|---|---|---|
+| **Frontend** | Vercel | Free |
+| **Backend** | Railway | Free |
+| **Base de datos** | Supabase | Free |
+| **Auth** | Supabase Auth | Free |
+
+## Deploy del backend (Railway)
+
+### 1. Crear proyecto
+
+1. Ir a [railway.app](https://railway.app) → **New Project**
+2. **Deploy from GitHub repo** → \`fitness-trainer-app\`
+
+### 2. Configurar servicio
+
+- **Root Directory:** \`apps/api\`
+- **Build Command:** \`npm install && npm run build\`
+- **Start Command:** \`npm start\`
+
+### 3. Variables de entorno
+
+\`\`\`env
+NODE_ENV=production
+PORT=3000
+SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+\`\`\`
+
+## Deploy del frontend (Vercel)
+
+### 1. Crear proyecto
+
+1. Ir a [vercel.com](https://vercel.com) → **Add New Project**
+2. Importar \`fitness-trainer-app\`
+3. Configurar:
+   - **Framework Preset:** Vite
+   - **Root Directory:** \`apps/web\`
+   - **Build Command:** \`npm run build\`
+   - **Output Directory:** \`dist\`
+
+### 2. Variables de entorno
+
+\`\`\`env
+VITE_SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...
+\`\`\`
+
+## Configurar dominios
+
+### Supabase
+
+**Authentication → URL Configuration:**
+- **Site URL:** \`https://tu-app.vercel.app\`
+- **Redirect URLs:** \`https://tu-app.vercel.app/auth/callback\`, \`http://localhost:5173/auth/callback\`
+
+### Google Cloud
+
+**APIs & Services → Credentials → OAuth 2.0 Client:**
+- **Authorized redirect URIs:** agregar \`https://tu-app.vercel.app/auth/callback\`
+- **Authorized JS origins:** agregar \`https://tu-app.vercel.app\`
+
+## Verificar el deploy
+
+- [ ] \`https://tu-api.up.railway.app/api/v1/health\` responde OK
+- [ ] \`https://tu-app.vercel.app\` carga Login
+- [ ] Login con Google funciona
+- [ ] Login con email funciona
+- [ ] Dashboard se muestra después de loguearse
+- [ ] Logout funciona
+`,
+  },
+  {
+    path: "docs/SECURITY.md",
+    content: `# 🔒 Seguridad
+
+Prácticas y decisiones de seguridad del proyecto.
+
+## Reglas de oro
+
+1. **NUNCA commitear \`.env\`** — solo \`.env.example\`
+2. **NUNCA exponer \`SUPABASE_SERVICE_ROLE_KEY\`** en el frontend
+3. **NUNCA pasar credenciales por chat/email/PR**
+4. **SIEMPRE usar HTTPS** en producción
+5. **SIEMPRE rotar** claves si se sospecha filtración
+
+## Gestión de secretos
+
+| Secreto | Dónde vive | Quién lo usa |
+|---|---|---|
+| \`SUPABASE_URL\` | \`.env\` + Bitwarden | Backend + Frontend |
+| \`SUPABASE_ANON_KEY\` | \`.env\` + Bitwarden | Backend + Frontend (pública) |
+| \`SUPABASE_SERVICE_ROLE_KEY\` | \`.env\` + Bitwarden | **Solo backend** |
+| DB password | Bitwarden | Solo conexión directa |
+| Google OAuth Client ID/Secret | Bitwarden + Supabase | Solo Supabase |
+
+## Row Level Security (RLS)
+
+Todas las tablas de \`public\` tienen RLS habilitado.
+
+### Políticas en \`public.users\`
+
+| Operación | Política |
+|---|---|
+| SELECT | Solo tu propio perfil (\`auth.uid() = id\`) |
+| INSERT | Solo tu propio perfil |
+| UPDATE | Solo tu propio perfil |
+| DELETE | Sin política (nadie puede borrar) |
+
+### Futuras tablas
+
+Siempre:
+1. \`ALTER TABLE x ENABLE ROW LEVEL SECURITY;\`
+2. Crear políticas explícitas
+3. Testear con un usuario "atacante"
+
+## Verificación de JWT
+
+El backend **NUNCA** guarda un \`JWT_SECRET\`. Usa:
+1. \`jose.createRemoteJWKSet\` para descargar claves públicas de Supabase
+2. Verifica firma, expiración, issuer y audience
+3. Cachea las claves automáticamente
+
+**Ventaja:** si Supabase rota claves, el backend no necesita cambios.
+
+## Buenas prácticas
+
+- **Validación con Zod** en todos los endpoints
+- **Tipos estrictos** en TypeScript
+- **Helmet** para headers HTTP seguros
+- **CORS** configurado explícitamente
+- **Errores genéricos** al cliente
+
+## Checklist antes de cada release
+
+- [ ] \`npm audit\` sin vulnerabilidades altas
+- [ ] \`.env\` no está en git
+- [ ] No hay claves hardcodeadas
+- [ ] RLS activo en todas las tablas
+- [ ] CORS no permite \`*\` en producción
+- [ ] HTTPS forzado en producción
+- [ ] Logs no incluyen tokens ni passwords
+
+## Reportar vulnerabilidades
+
+**NO abras un issue público.** Contactá a **matiasgamarra.dev@gmail.com**.
+`,
+  },
+];
+
+function cmdNewDocs() {
+  title("📄 Creando documentación nueva");
+
+  for (const doc of NEW_DOCS) {
+    const fullPath = path.join(ROOT, doc.path);
+    if (fs.existsSync(fullPath)) {
+      warn(`Ya existe, se saltea: ${doc.path}`);
+      continue;
+    }
+    writeDoc(doc.path, doc.content);
+    ok(`Creado: ${doc.path}`);
+  }
+
+  title("🎉 Documentación nueva lista");
+}
+
+// ─────────────────────────────────────────────────────────────
 // Comando: sync
 // ─────────────────────────────────────────────────────────────
 
@@ -372,6 +661,7 @@ ${C.bold}Comandos:${C.reset}
   ${C.cyan}context${C.reset}                      Regenera AI_CONTEXT.md
   ${C.cyan}changelog${C.reset}                    Agrega entrada al CHANGELOG
   ${C.cyan}roadmap${C.reset}                      Marca item del ROADMAP como completado
+  ${C.cyan}new-docs${C.reset}                     Crea docs nuevos (AUTH, DEPLOYMENT, SECURITY)
   ${C.cyan}all${C.reset}                          Ejecuta context + check + sync
   ${C.cyan}help${C.reset}                         Muestra esta ayuda
 
@@ -414,6 +704,7 @@ async function interactive() {
   console.log("  [4] Changelog (agregar entrada)");
   console.log("  [5] Roadmap (marcar item como completado)");
   console.log("  [6] All (context + check + sync)");
+  console.log("  [7] New docs (AUTH, DEPLOYMENT, SECURITY)");
   console.log("  [0] Salir");
 
   const opt = await question("\nOpción: ");
@@ -441,6 +732,9 @@ async function interactive() {
     }
     case "6":
       cmdAll();
+      break;
+    case "7":
+      cmdNewDocs();
       break;
     case "0":
       info("Chau 👋");
@@ -506,6 +800,9 @@ async function main() {
       break;
     case "roadmap":
       cmdRoadmap({ item: args.item });
+      break;
+    case "new-docs":
+      cmdNewDocs();
       break;
     case "all":
       cmdAll();
