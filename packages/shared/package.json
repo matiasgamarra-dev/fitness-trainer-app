@@ -9,6 +9,7 @@
   "scripts": {
     "build": "echo \"Shared build próximamente\" && exit 0"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
 }
