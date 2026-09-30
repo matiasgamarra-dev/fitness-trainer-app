@@ -25,6 +25,7 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import readline from "node:readline";
+import { renderAiContext, CURRENT_SPRINT } from "./templates/ai-context.mjs";
 
 // ─────────────────────────────────────────────────────────────
 // Setup
@@ -153,58 +154,42 @@ function today() {
 // ─────────────────────────────────────────────────────────────
 
 function cmdContext() {
-  title("🔄 Actualizando AI_CONTEXT.md");
+  title("🔄 Regenerando AI_CONTEXT.md");
 
   const relPath = "docs/AI_CONTEXT.md";
-  let content = readDoc(relPath);
-
-  if (!content) {
-    err(`No existe ${relPath}`);
-    process.exit(1);
-  }
-
+  const existing = readDoc(relPath) ?? "";
   const git = getGitInfo();
   const date = today();
 
-  // Reemplaza la sección "Estado actual"
-  const estadoRegex = /## 📌 Estado actual del proyecto[\s\S]*?(?=\n---)/;
-  const nuevoEstado = `## 📌 Estado actual del proyecto
+  // Extrae historial existente
+  const historial = extractHistorial(existing, date);
 
-| Campo | Valor |
-|---|---|
-| **Nombre** | Fitness Trainer App |
-| **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
-| **Owner** | Matías Gamarra (@matiasgamarra-dev) |
-| **Rama actual** | \`${git.branch}\` |
-| **Último commit** | \`${git.lastCommit}\` |
-| **Cambios sin commitear** | ${git.status ? "⚠️ Sí" : "✅ No"} |
-| **Última actualización** | ${date} |
-
-`;
-
-  if (!estadoRegex.test(content)) {
-    warn("No se encontró la sección 'Estado actual' en AI_CONTEXT.md");
-    warn("Verificá que el archivo tenga el header '## 📌 Estado actual del proyecto'");
-    process.exit(1);
-  }
-
-  content = content.replace(estadoRegex, nuevoEstado);
-
-  // Agrega entrada al historial
-  const historialRegex = /(\| Fecha \| Cambio \|\n\|---\|---\|\n)/;
-  if (historialRegex.test(content)) {
-    content = content.replace(
-      historialRegex,
-      `$1| ${date} | Actualización automática de contexto |\n`,
-    );
-  }
+  const content = renderAiContext({ git, date, historial });
 
   writeDoc(relPath, content);
 
-  ok("AI_CONTEXT.md actualizado");
+  ok("AI_CONTEXT.md regenerado desde template");
   log(`   Rama: ${git.branch}`);
   log(`   Último commit: ${git.lastCommit}`);
   log(`   Cambios sin commitear: ${git.status ? "Sí" : "No"}`);
+  log(`   Sprint actual: ${CURRENT_SPRINT}`);
+}
+
+/**
+ * Extrae las filas de la tabla "Historial de actualizaciones" del AI_CONTEXT.md
+ * existente, y agrega/actualiza la fila de hoy.
+ */
+function extractHistorial(content, date) {
+  const match = content.match(
+    /## 🔄 Historial de actualizaciones[\s\S]*?\|\s*Fecha\s*\|\s*Cambio\s*\|\n\|---\|---\|\n([\s\S]*)$/
+  );
+  const filas = match ? match[1].trim().split("\n").filter(Boolean) : [];
+
+  // Filtra la fila de hoy si ya existe (idempotencia)
+  const sinHoy = filas.filter((f) => !f.includes(`| ${date} |`));
+
+  // Agrega la fila de hoy al principio (más reciente primero)
+  return [`| ${date} | Regeneración automática desde template |`, ...sinHoy].join("\n");
 }
 
 // ─────────────────────────────────────────────────────────────
