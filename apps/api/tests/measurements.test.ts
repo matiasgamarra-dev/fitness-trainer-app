@@ -24,16 +24,13 @@ vi.mock("jose", async (importOriginal) => {
   };
 });
 
-// Usamos vi.hoisted para tener las variables disponibles en el factory
-const { mockChain, setMockResponse } = vi.hoisted(() => {
+const { mockChain, setListResponse, setSingleResponse } = vi.hoisted(() => {
   const state: {
-    singleResponse: { data: unknown; error: unknown };
     listResponse: { data: unknown; error: unknown };
-    deleteResponse: { error: unknown };
+    singleResponse: { data: unknown; error: unknown };
   } = {
-    singleResponse: { data: null, error: null },
     listResponse: { data: [], error: null },
-    deleteResponse: { error: null },
+    singleResponse: { data: null, error: null },
   };
 
   const chain = {
@@ -42,21 +39,22 @@ const { mockChain, setMockResponse } = vi.hoisted(() => {
     gte: vi.fn().mockReturnThis(),
     lte: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockResolvedValue(state.listResponse),
+    // limit() resuelve la lista (caso GET y check semanal en POST)
+    limit: vi.fn(() => Promise.resolve(state.listResponse)),
+    // single() resuelve un registro único (caso POST insert, GET by id, PUT)
     single: vi.fn(() => Promise.resolve(state.singleResponse)),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
     delete: vi.fn().mockReturnThis(),
-    // then() permite que se resuelva al hacer await del chain
-    then: vi.fn((resolve: (v: unknown) => unknown) =>
-      Promise.resolve(state.deleteResponse).then(resolve),
-    ),
   };
 
   return {
     mockChain: chain,
-    setMockResponse: (kind: keyof typeof state, value: unknown) => {
-      state[kind] = value as never;
+    setListResponse: (resp: { data: unknown; error: unknown }) => {
+      state.listResponse = resp;
+    },
+    setSingleResponse: (resp: { data: unknown; error: unknown }) => {
+      state.singleResponse = resp;
     },
   };
 });
@@ -70,16 +68,26 @@ vi.mock("../src/config/supabase.js", () => ({
 
 // ─── Tests ───────────────────────────────────────────────────
 
+const validWeekBody = {
+  date: "2026-09-30",
+  weight_kg: 80,
+  week_start: "2026-09-28",
+  week_end: "2026-10-04",
+};
+
 describe("POST /api/v1/measurements", () => {
   const app = createServer();
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setMockResponse("singleResponse", {
+    // Por default, no hay medida en la semana
+    setListResponse({ data: [], error: null });
+    // Y el insert devuelve una medida
+    setSingleResponse({
       data: {
         id: "measurement-id",
         user_id: "test-user-id",
-        date: "2026-09-29",
+        date: "2026-09-30",
         weight_kg: 80,
       },
       error: null,
@@ -89,7 +97,7 @@ describe("POST /api/v1/measurements", () => {
   it("devuelve 401 sin Authorization header", async () => {
     const res = await request(app)
       .post("/api/v1/measurements")
-      .send({ date: "2026-09-29", weight_kg: 80 });
+      .send(validWeekBody);
 
     expect(res.status).toBe(401);
   });
@@ -98,17 +106,49 @@ describe("POST /api/v1/measurements", () => {
     const res = await request(app)
       .post("/api/v1/measurements")
       .set("Authorization", "Bearer valid-token")
-      .send({ date: "2026-09-29" });
+      .send({
+        date: "2026-09-30",
+        week_start: "2026-09-28",
+        week_end: "2026-10-04",
+      });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
+  });
+
+  it("devuelve 400 si falta week_start o week_end", async () => {
+    const res = await request(app)
+      .post("/api/v1/measurements")
+      .set("Authorization", "Bearer valid-token")
+      .send({ date: "2026-09-30", weight_kg: 80 });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("devuelve 400 si week_end no es exactamente 6 días después", async () => {
+    const res = await request(app)
+      .post("/api/v1/measurements")
+      .set("Authorization", "Bearer valid-token")
+      .send({
+        date: "2026-09-30",
+        weight_kg: 80,
+        week_start: "2026-09-28",
+        week_end: "2026-10-10", // 12 días
+      });
+
+    expect(res.status).toBe(400);
   });
 
   it("devuelve 400 con fecha inválida", async () => {
     const res = await request(app)
       .post("/api/v1/measurements")
       .set("Authorization", "Bearer valid-token")
-      .send({ date: "29/09/2026", weight_kg: 80 });
+      .send({
+        date: "29/09/2026",
+        weight_kg: 80,
+        week_start: "2026-09-28",
+        week_end: "2026-10-04",
+      });
 
     expect(res.status).toBe(400);
   });
@@ -117,11 +157,28 @@ describe("POST /api/v1/measurements", () => {
     const res = await request(app)
       .post("/api/v1/measurements")
       .set("Authorization", "Bearer valid-token")
-      .send({ date: "2026-09-29", weight_kg: 80, waist_cm: 85 });
+      .send(validWeekBody);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.message).toMatch(/created/i);
+  });
+
+  it("devuelve 409 si ya hay una medida en esa semana", async () => {
+    setListResponse({
+      data: [{ id: "existing-id", date: "2026-09-29" }],
+      error: null,
+    });
+
+    const res = await request(app)
+      .post("/api/v1/measurements")
+      .set("Authorization", "Bearer valid-token")
+      .send(validWeekBody);
+
+    expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/already exists/i);
+    expect(res.body.details.existing_id).toBe("existing-id");
   });
 });
 
@@ -130,7 +187,7 @@ describe("GET /api/v1/measurements", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setMockResponse("listResponse", {
+    setListResponse({
       data: [
         { id: "1", date: "2026-09-29", weight_kg: 80 },
         { id: "2", date: "2026-09-28", weight_kg: 80.5 },
@@ -176,7 +233,7 @@ describe("DELETE /api/v1/measurements/:id", () => {
   });
 
   it("devuelve 404 si la medida no existe", async () => {
-    setMockResponse("singleResponse", { data: null, error: { code: "PGRST116" } });
+    setSingleResponse({ data: null, error: { code: "PGRST116" } });
 
     const res = await request(app)
       .delete("/api/v1/measurements/nonexistent")

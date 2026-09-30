@@ -68,14 +68,12 @@ router.get("/", verifyUser, async (req: AuthRequest, res: Response) => {
  * PUT /api/v1/profile
  *
  * Actualiza parcialmente el perfil del usuario autenticado.
- * Solo se modifican los campos enviados en el body.
  *
- * Body (todos opcionales):
- *   name       string
- *   birth_date string (YYYY-MM-DD)
- *   sex        "male" | "female" | "other"
- *   height_cm  number
- *   goal       "lose_fat" | "gain_muscle" | "maintain"
+ * Reglas:
+ *   - `name` es editable siempre.
+ *   - `birth_date`, `sex`, `height_cm`, `goal` son writeOnce:
+ *     si ya tienen valor en DB, no se pueden cambiar vía API.
+ *     Contactar al admin para modificarlos.
  */
 router.put("/", verifyUser, async (req: AuthRequest, res: Response) => {
   try {
@@ -111,10 +109,60 @@ router.put("/", verifyUser, async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    // Obtener el perfil actual para verificar campos bloqueados
+    const { data: current, error: fetchError } = await supabaseAdmin
+      .from("users")
+      .select("name, birth_date, sex, height_cm, goal")
+      .eq("id", userId)
+      .single();
+
+    if (fetchError || !current) {
+      res.status(404).json({
+        success: false,
+        error: "Profile not found",
+      });
+      return;
+    }
+
+    // Campos writeOnce: una vez seteados, no se pueden cambiar
+    const writeOnceFields = ["birth_date", "sex", "height_cm", "goal"] as const;
+    const blockedFields: string[] = [];
+
+    for (const field of writeOnceFields) {
+      const newValue = parsed.data[field];
+      const currentValue = current[field];
+
+      // Si el campo ya tiene valor Y se intenta cambiar a otro distinto → bloqueado
+      if (
+        newValue !== undefined &&
+        currentValue !== null &&
+        currentValue !== newValue
+      ) {
+        blockedFields.push(field);
+      }
+    }
+
+    if (blockedFields.length > 0) {
+      res.status(403).json({
+        success: false,
+        error: "Profile fields are locked",
+        details: {
+          locked_fields: blockedFields,
+          hint: "Estos datos se completan una sola vez. Contactá al administrador para modificarlos.",
+        },
+      });
+      return;
+    }
+
+    // Filtrar los campos bloqueados del payload
+    // (si el valor es igual al actual, lo dejamos pasar sin problema;
+    //  si está en null, permitimos la escritura inicial)
+    const payload: Record<string, unknown> = { ...parsed.data };
+
     // Actualizar en DB
     const { data, error } = await supabaseAdmin
       .from("users")
-      .update(parsed.data)
+      .update(payload)
       .eq("id", userId)
       .select("*")
       .single();

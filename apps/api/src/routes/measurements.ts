@@ -3,6 +3,7 @@ import { verifyUser, type AuthRequest } from "../middleware/auth.js";
 import { supabaseAdmin } from "../config/supabase.js";
 import {
   measurementCreateSchema,
+  measurementCreateWithWeekSchema,
   type MeasurementCreateInput,
 } from "@fitness-trainer/shared";
 
@@ -24,15 +25,17 @@ function getUserId(req: AuthRequest, res: Response): string | null {
 
 // ─── POST /api/v1/measurements ───────────────────────────────
 // Crea una medida corporal nueva.
-// Body: { date, weight_kg, body_fat_pct?, chest_cm?, ... }
-// 409 si ya existe una medida en esa fecha para ese usuario.
+// Body: { date, weight_kg, week_start, week_end, ... }
+// El frontend calcula week_start/week_end según la timezone del usuario.
+// 409 si ya existe una medida en esa semana.
 
 router.post("/", verifyUser, async (req: AuthRequest, res: Response) => {
   try {
     const userId = getUserId(req, res);
     if (!userId) return;
 
-    const parsed = measurementCreateSchema.safeParse(req.body);
+    // Validamos con el schema que incluye week_start/week_end
+    const parsed = measurementCreateWithWeekSchema.safeParse(req.body);
 
     if (!parsed.success) {
       res.status(400).json({
@@ -43,8 +46,44 @@ router.post("/", verifyUser, async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    const { week_start, week_end, ...measurementData } = parsed.data;
+
+    // Verificar si ya hay una medida en esa semana
+    const { data: existing, error: checkError } = await supabaseAdmin
+      .from("body_measurements")
+      .select("id, date")
+      .eq("user_id", userId)
+      .gte("date", week_start)
+      .lte("date", week_end)
+      .limit(1);
+
+    if (checkError) {
+      res.status(500).json({
+        success: false,
+        error: "Database error",
+        details: checkError.message,
+      });
+      return;
+    }
+
+    const existingMeasurement = existing?.[0];
+
+    if (existingMeasurement) {
+      res.status(409).json({
+        success: false,
+        error: "Measurement already exists for this week",
+        details: {
+          existing_id: existingMeasurement.id,
+          existing_date: existingMeasurement.date,
+          hint: "Ya tenés una medida registrada esta semana. Podés editarla con PUT /measurements/:id o eliminarla con DELETE /measurements/:id.",
+        },
+      });
+      return;
+    }
+
+    // Insertar
     const payload: MeasurementCreateInput & { user_id: string } = {
-      ...parsed.data,
+      ...measurementData,
       user_id: userId,
     };
 
@@ -55,12 +94,11 @@ router.post("/", verifyUser, async (req: AuthRequest, res: Response) => {
       .single();
 
     if (error) {
-      // UNIQUE(user_id, date) violado
       if (error.code === "23505") {
         res.status(409).json({
           success: false,
           error: "Measurement already exists for this date",
-          hint: "Ya hay una medida registrada en esa fecha. Podés editarla con PUT /measurements/:id o eliminarla con DELETE.",
+          hint: "Ya hay una medida registrada en esa fecha.",
         });
         return;
       }
@@ -122,7 +160,6 @@ router.get("/", verifyUser, async (req: AuthRequest, res: Response) => {
       typeof toRaw === "string" && dateRegex.test(toRaw) ? toRaw : null;
 
     // Armamos el chain completo ANTES de awaitear.
-    // El orden importa: select → filtros → order → limit.
     let query = supabaseAdmin
       .from("body_measurements")
       .select("*")
