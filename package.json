@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --fix --no-error-on-unmatched-pattern",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-"docs": "node scripts/docs.mjs"
+    "docs": "node scripts/docs.mjs"
   },
   "keywords": [
     "fitness",
@@ -46,6 +46,7 @@
     "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.12.0",
+    "jsdom": "^30.1.1",
     "prettier": "^3.9.9",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
