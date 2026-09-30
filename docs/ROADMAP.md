@@ -80,15 +80,15 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 2 — Perfil y Onboarding (Semana 3) ← PRÓXIMO
 
 **Backend:**
-- [ ] Modelo `BodyMeasurement` (SQL en Supabase)
-- [ ] Endpoints de perfil (GET/PUT)
-- [ ] Endpoints de medidas (CRUD)
+- [x] Modelo `BodyMeasurement` (SQL en Supabase)
+- [x] Endpoints de perfil (GET/PUT)
+- [x] Endpoints de medidas (CRUD)
 - [ ] Tests
 
 **Frontend:**
-- [ ] Onboarding (4 pasos)
-- [ ] Pantalla de perfil
-- [ ] Edición de datos
+- [x] Onboarding (4 pasos)
+- [x] Pantalla de perfil
+- [x] Edición de datos
 - [ ] Tests
 
 ### Sprint 3 — Rutinas (Semana 4)

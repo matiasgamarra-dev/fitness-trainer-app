@@ -8,6 +8,7 @@
  *   npm run docs -- sync               → sincroniza (context + check)
  *   npm run docs -- check              → verifica integridad de docs
  *   npm run docs -- context            → regenera AI_CONTEXT.md
+ *   npm run docs -- db                 → regenera DATABASE.md
  *   npm run docs -- changelog --type=feat --message="..."
  *   npm run docs -- roadmap --item="..."
  *   npm run docs -- new-docs           → crea AUTH, DEPLOYMENT, SECURITY
@@ -22,7 +23,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import readline from "node:readline";
 import { renderAiContext, CURRENT_SPRINT } from "./templates/ai-context.mjs";
@@ -125,7 +126,8 @@ function run(cmd) {
 function getGitInfo() {
   return {
     branch: run("git branch --show-current") || "(desconocida)",
-    lastCommit: run('git log -1 --pretty=format:"%h - %s (%ar)"') || "(sin commits)",
+    lastCommit:
+      run('git log -1 --pretty=format:"%h - %s (%ar)"') || "(sin commits)",
     status: run("git status --porcelain"),
   };
 }
@@ -161,9 +163,7 @@ function cmdContext() {
   const git = getGitInfo();
   const date = today();
 
-  // Extrae historial existente
   const historial = extractHistorial(existing, date);
-
   const content = renderAiContext({ git, date, historial });
 
   writeDoc(relPath, content);
@@ -181,15 +181,35 @@ function cmdContext() {
  */
 function extractHistorial(content, date) {
   const match = content.match(
-    /## 🔄 Historial de actualizaciones[\s\S]*?\|\s*Fecha\s*\|\s*Cambio\s*\|\n\|---\|---\|\n([\s\S]*)$/
+    /## 🔄 Historial de actualizaciones[\s\S]*?\|\s*Fecha\s*\|\s*Cambio\s*\|\n\|---\|---\|\n([\s\S]*)$/,
   );
   const filas = match ? match[1].trim().split("\n").filter(Boolean) : [];
-
-  // Filtra la fila de hoy si ya existe (idempotencia)
   const sinHoy = filas.filter((f) => !f.includes(`| ${date} |`));
 
-  // Agrega la fila de hoy al principio (más reciente primero)
-  return [`| ${date} | Regeneración automática desde template |`, ...sinHoy].join("\n");
+  return [
+    `| ${date} | Regeneración automática desde template |`,
+    ...sinHoy,
+  ].join("\n");
+}
+
+// ─────────────────────────────────────────────────────────────
+// Comando: db
+// ─────────────────────────────────────────────────────────────
+
+function cmdDb() {
+  title("🗄️  Regenerando DATABASE.md desde migraciones");
+
+  try {
+    execFileSync(
+      process.execPath,
+      [path.join(ROOT, "scripts/create-database-doc.mjs")],
+      { stdio: "inherit", cwd: ROOT },
+    );
+    ok("docs/DATABASE.md regenerado");
+  } catch (e) {
+    err(`Error al regenerar DATABASE.md: ${e.message}`);
+    process.exit(1);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -246,6 +266,10 @@ function cmdChangelog({ type = "chore", message = "Sin descripción" }) {
     process.exit(1);
   }
 
+  // Normalizar CRLF → LF para trabajar sin sorpresas
+  const hadCRLF = content.includes("\r\n");
+  content = content.replace(/\r\n/g, "\n");
+
   // Asegura que exista [Unreleased]
   if (!content.includes("## [Unreleased]")) {
     content = content.replace(
@@ -254,9 +278,9 @@ function cmdChangelog({ type = "chore", message = "Sin descripción" }) {
     );
   }
 
-  // Encuentra el bloque [Unreleased] y busca la sección dentro de ÉL
+  // Encuentra el bloque [Unreleased]
   const unreleasedMatch = content.match(
-    /(## \[Unreleased\][\s\S]*?)(?=\n## \[|\n*$)/,
+    /(## \[Unreleased\][\s\S]*?)(?=\n## \[|$)/,
   );
 
   if (!unreleasedMatch) {
@@ -266,20 +290,30 @@ function cmdChangelog({ type = "chore", message = "Sin descripción" }) {
 
   const unreleasedBlock = unreleasedMatch[1];
   const sectionHeader = `### ${section}`;
+  const newLine = `- ${message} (${date})`;
+
+  // Idempotencia
+  if (unreleasedBlock.includes(newLine)) {
+    warn(`La entrada ya existe en CHANGELOG.md: ${newLine}`);
+    return;
+  }
 
   let nuevoBloque;
   if (unreleasedBlock.includes(sectionHeader)) {
-    // Agrega debajo de la sección existente
     nuevoBloque = unreleasedBlock.replace(
       new RegExp(`(${sectionHeader}\\n)`),
-      `$1- ${message} (${date})\n`,
+      `$1${newLine}\n`,
     );
   } else {
-    // Agrega la sección al final del bloque [Unreleased]
-    nuevoBloque = `${unreleasedBlock.trimEnd()}\n\n${sectionHeader}\n- ${message} (${date})\n`;
+    nuevoBloque = `${unreleasedBlock.trimEnd()}\n\n${sectionHeader}\n${newLine}\n`;
   }
 
   content = content.replace(unreleasedBlock, nuevoBloque);
+
+  // Restaurar CRLF si el archivo original los tenía
+  if (hadCRLF) {
+    content = content.replace(/\n/g, "\r\n");
+  }
 
   writeDoc(relPath, content);
 
@@ -307,7 +341,9 @@ function cmdRoadmap({ item }) {
   }
 
   const escaped = item.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`- \\[ \\] (${escaped})`, "i");
+
+  // Match PARCIAL
+  const regex = new RegExp(`- \\[ \\] ([^\\n]*${escaped}[^\\n]*)`, "i");
 
   if (!regex.test(content)) {
     err(`Item no encontrado o ya completado: "${item}"`);
@@ -341,69 +377,6 @@ Documentación del sistema de autenticación de Fitness Trainer App.
 | **Almacenamiento de token** | localStorage (default de Supabase) |
 | **Verificación backend** | \`jose\` + JWKS remoto |
 | **Estado frontend** | Zustand (\`useAuthStore\`) |
-
-## Flujo de autenticación
-
-### Registro con email + password
-
-\`\`\`
-[Usuario] → llena formulario → [Frontend]
-    ↓ supabase.auth.signUp()
-[Supabase Auth] → crea en auth.users
-    ↓ trigger handle_new_user
-[Supabase DB] → crea en public.users
-    ↓ devuelve session (si email confirmation OFF)
-[Frontend] → guarda session en Zustand + localStorage
-\`\`\`
-
-### Login con Google OAuth
-
-\`\`\`
-[Usuario] → click "Continuar con Google" → [Frontend]
-    ↓ supabase.auth.signInWithOAuth({ provider: 'google' })
-[Google] → muestra consent screen
-    ↓ redirige a: https://ourssnznqjladulhmpeq.supabase.co/auth/v1/callback
-[Supabase Auth] → valida con Google → crea/actualiza user
-    ↓ trigger handle_new_user
-[Supabase DB] → crea en public.users
-    ↓ redirige a: http://localhost:5173/auth/callback
-[Frontend AuthCallback] → detecta session → navigate a /dashboard
-\`\`\`
-
-### Request autenticado al backend
-
-\`\`\`
-[Usuario] → acción que requiere auth → [Frontend]
-    ↓ axios request con header: Authorization: Bearer <jwt>
-[Backend API] → middleware verifyUser
-    ↓ jose.jwtVerify(token, JWKS, { issuer, audience })
-[Supabase JWKS] → devuelve clave pública
-    ↓ verifica firma + expiración
-[Backend API] → adjunta user al req → continúa con el handler
-\`\`\`
-
-## Estructura de archivos
-
-### Backend
-
-| Archivo | Propósito |
-|---|---|
-| \`apps/api/src/middleware/auth.ts\` | Middleware \`verifyUser\` con jose + JWKS |
-| \`apps/api/src/routes/auth.ts\` | Endpoint \`GET /api/v1/auth/me\` |
-| \`apps/api/src/config/supabase.ts\` | Cliente Supabase admin |
-| \`apps/api/src/config/env.ts\` | Validación de variables con Zod |
-
-### Frontend
-
-| Archivo | Propósito |
-|---|---|
-| \`apps/web/src/lib/supabase.ts\` | Cliente Supabase |
-| \`apps/web/src/stores/auth.ts\` | Store Zustand de auth |
-| \`apps/web/src/pages/Login.tsx\` | Pantalla de login |
-| \`apps/web/src/pages/Register.tsx\` | Pantalla de registro |
-| \`apps/web/src/pages/AuthCallback.tsx\` | Callback de OAuth |
-| \`apps/web/src/pages/Dashboard.tsx\` | Dashboard protegido |
-| \`apps/web/src/components/ProtectedRoute.tsx\` | Guard de rutas |
 
 ## Endpoints
 
@@ -448,18 +421,11 @@ Guía para deployar Fitness Trainer App a producción.
 
 ## Deploy del backend (Railway)
 
-### 1. Crear proyecto
-
-1. Ir a [railway.app](https://railway.app) → **New Project**
-2. **Deploy from GitHub repo** → \`fitness-trainer-app\`
-
-### 2. Configurar servicio
-
 - **Root Directory:** \`apps/api\`
 - **Build Command:** \`npm install && npm run build\`
 - **Start Command:** \`npm start\`
 
-### 3. Variables de entorno
+### Variables de entorno
 
 \`\`\`env
 NODE_ENV=production
@@ -471,45 +437,17 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 ## Deploy del frontend (Vercel)
 
-### 1. Crear proyecto
+- **Framework Preset:** Vite
+- **Root Directory:** \`apps/web\`
+- **Build Command:** \`npm run build\`
+- **Output Directory:** \`dist\`
 
-1. Ir a [vercel.com](https://vercel.com) → **Add New Project**
-2. Importar \`fitness-trainer-app\`
-3. Configurar:
-   - **Framework Preset:** Vite
-   - **Root Directory:** \`apps/web\`
-   - **Build Command:** \`npm run build\`
-   - **Output Directory:** \`dist\`
-
-### 2. Variables de entorno
+### Variables de entorno
 
 \`\`\`env
 VITE_SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...
 \`\`\`
-
-## Configurar dominios
-
-### Supabase
-
-**Authentication → URL Configuration:**
-- **Site URL:** \`https://tu-app.vercel.app\`
-- **Redirect URLs:** \`https://tu-app.vercel.app/auth/callback\`, \`http://localhost:5173/auth/callback\`
-
-### Google Cloud
-
-**APIs & Services → Credentials → OAuth 2.0 Client:**
-- **Authorized redirect URIs:** agregar \`https://tu-app.vercel.app/auth/callback\`
-- **Authorized JS origins:** agregar \`https://tu-app.vercel.app\`
-
-## Verificar el deploy
-
-- [ ] \`https://tu-api.up.railway.app/api/v1/health\` responde OK
-- [ ] \`https://tu-app.vercel.app\` carga Login
-- [ ] Login con Google funciona
-- [ ] Login con email funciona
-- [ ] Dashboard se muestra después de loguearse
-- [ ] Logout funciona
 `,
   },
   {
@@ -526,16 +464,6 @@ Prácticas y decisiones de seguridad del proyecto.
 4. **SIEMPRE usar HTTPS** en producción
 5. **SIEMPRE rotar** claves si se sospecha filtración
 
-## Gestión de secretos
-
-| Secreto | Dónde vive | Quién lo usa |
-|---|---|---|
-| \`SUPABASE_URL\` | \`.env\` + Bitwarden | Backend + Frontend |
-| \`SUPABASE_ANON_KEY\` | \`.env\` + Bitwarden | Backend + Frontend (pública) |
-| \`SUPABASE_SERVICE_ROLE_KEY\` | \`.env\` + Bitwarden | **Solo backend** |
-| DB password | Bitwarden | Solo conexión directa |
-| Google OAuth Client ID/Secret | Bitwarden + Supabase | Solo Supabase |
-
 ## Row Level Security (RLS)
 
 Todas las tablas de \`public\` tienen RLS habilitado.
@@ -549,39 +477,9 @@ Todas las tablas de \`public\` tienen RLS habilitado.
 | UPDATE | Solo tu propio perfil |
 | DELETE | Sin política (nadie puede borrar) |
 
-### Futuras tablas
-
-Siempre:
-1. \`ALTER TABLE x ENABLE ROW LEVEL SECURITY;\`
-2. Crear políticas explícitas
-3. Testear con un usuario "atacante"
-
 ## Verificación de JWT
 
-El backend **NUNCA** guarda un \`JWT_SECRET\`. Usa:
-1. \`jose.createRemoteJWKSet\` para descargar claves públicas de Supabase
-2. Verifica firma, expiración, issuer y audience
-3. Cachea las claves automáticamente
-
-**Ventaja:** si Supabase rota claves, el backend no necesita cambios.
-
-## Buenas prácticas
-
-- **Validación con Zod** en todos los endpoints
-- **Tipos estrictos** en TypeScript
-- **Helmet** para headers HTTP seguros
-- **CORS** configurado explícitamente
-- **Errores genéricos** al cliente
-
-## Checklist antes de cada release
-
-- [ ] \`npm audit\` sin vulnerabilidades altas
-- [ ] \`.env\` no está en git
-- [ ] No hay claves hardcodeadas
-- [ ] RLS activo en todas las tablas
-- [ ] CORS no permite \`*\` en producción
-- [ ] HTTPS forzado en producción
-- [ ] Logs no incluyen tokens ni passwords
+El backend **NUNCA** guarda un \`JWT_SECRET\`. Usa \`jose.createRemoteJWKSet\` para descargar claves públicas de Supabase y verifica firma, expiración, issuer y audience.
 
 ## Reportar vulnerabilidades
 
@@ -607,7 +505,7 @@ function cmdNewDocs() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Comando: sync
+// Comando: sync / all
 // ─────────────────────────────────────────────────────────────
 
 function cmdSync() {
@@ -616,10 +514,6 @@ function cmdSync() {
   cmdCheck();
   title("🎉 Sincronización completa");
 }
-
-// ─────────────────────────────────────────────────────────────
-// Comando: all
-// ─────────────────────────────────────────────────────────────
 
 function cmdAll() {
   title("🚀 Ejecutando TODO");
@@ -644,6 +538,7 @@ ${C.bold}Comandos:${C.reset}
   ${C.cyan}sync${C.reset}                         Sincroniza (context + check)
   ${C.cyan}check${C.reset}                        Verifica integridad de docs
   ${C.cyan}context${C.reset}                      Regenera AI_CONTEXT.md
+  ${C.cyan}db${C.reset}                           Regenera DATABASE.md desde migraciones
   ${C.cyan}changelog${C.reset}                    Agrega entrada al CHANGELOG
   ${C.cyan}roadmap${C.reset}                      Marca item del ROADMAP como completado
   ${C.cyan}new-docs${C.reset}                     Crea docs nuevos (AUTH, DEPLOYMENT, SECURITY)
@@ -660,13 +555,16 @@ ${C.bold}Ejemplos:${C.reset}
   npm run docs -- sync
   npm run docs -- check
   npm run docs -- context
+  npm run docs -- db
   npm run docs -- changelog --type=feat --message="agrega login con Google"
-  npm run docs -- roadmap --item="Modelo User en Prisma"
+  npm run docs -- roadmap --item="BodyMeasurement"
   npm run docs -- all
-  npm run docs -- check --verbose
 
 ${C.bold}Tipos de changelog:${C.reset}
   feat, fix, docs, refactor, perf, style, test, chore
+
+${C.bold}Roadmap (match parcial):${C.reset}
+  El --item busca substring dentro del item del roadmap.
 `);
 }
 
@@ -755,7 +653,6 @@ function parseArgs(argv) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  // Flags globales
   flags.verbose = !!args.verbose;
   flags.dryRun = !!args["dry-run"];
   flags.silent = !!args.silent;
@@ -776,6 +673,9 @@ async function main() {
       break;
     case "context":
       cmdContext();
+      break;
+    case "db":
+      cmdDb();
       break;
     case "changelog":
       cmdChangelog({

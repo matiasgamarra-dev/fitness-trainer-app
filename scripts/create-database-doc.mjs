@@ -1,32 +1,29 @@
+#!/usr/bin/env node
 // scripts/create-database-doc.mjs
 // Crea docs/DATABASE.md a partir de las migraciones.
 // Ejecutar: node scripts\create-database-doc.mjs
+//      o: npm run docs -- db
 //
 // IMPORTANTE: Este script es la ÚNICA forma de crear/modificar este doc.
 // No editar docs/DATABASE.md a mano.
+//
+// Cómo agregar una migración nueva:
+//   1. Crear el .sql en supabase/migrations/
+//   2. Agregar su entrada a META (abajo)
+//   3. Si toca una tabla, actualizar la sección "Tablas" del template
+//   4. Correr: node scripts\create-database-doc.mjs
 
-import { readdir } from "node:fs/promises";
+import { readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { writeFile } from "node:fs/promises";
 
 const root = join(import.meta.dirname, "..");
 const migrationsDir = join(root, "supabase", "migrations");
 const docsDir = join(root, "docs");
 
-async function getMigrations() {
-  const files = await readdir(migrationsDir);
-  return files.filter((f) => f.endsWith(".sql")).sort();
-}
+// ─────────────────────────────────────────────────────────────
+// META: metadata por migración
+// ─────────────────────────────────────────────────────────────
 
-function formatTable(rows) {
-  const header = "| Migración | Sprint | Descripción |\n|---|---|---|";
-  const body = rows
-    .map((r) => `| \`${r.file}\` | ${r.sprint} | ${r.description} |`)
-    .join("\n");
-  return `${header}\n${body}`;
-}
-
-// Mapa de metadata por archivo de migración
 const META = {
   "20260927000001_create_users_table.sql": {
     sprint: 1,
@@ -44,12 +41,59 @@ const META = {
     sprint: 2,
     description: "Crea `public.body_measurements` con RLS y trigger `updated_at`",
   },
+  "20260930000001_add_days_per_week_to_users.sql": {
+    sprint: 2,
+    description: "Agrega `days_per_week` (INT, 1-7) a `public.users` con CHECK",
+  },
 };
+
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
+
+async function getMigrations() {
+  const files = await readdir(migrationsDir);
+  return files.filter((f) => f.endsWith(".sql")).sort();
+}
+
+function formatTable(rows) {
+  const header = "| Migración | Sprint | Descripción |\n|---|---|---|";
+  const body = rows
+    .map((r) => `| \`${r.file}\` | ${r.sprint} | ${r.description} |`)
+    .join("\n");
+  return `${header}\n${body}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Main
+// ─────────────────────────────────────────────────────────────
 
 async function main() {
   console.log("📝 Generando docs/DATABASE.md...\n");
 
   const migrations = await getMigrations();
+
+  // ─── Check de integridad: migraciones sin META ─────────────
+  const missingMeta = migrations.filter((f) => !META[f]);
+  if (missingMeta.length > 0) {
+    console.log("⚠️  Migraciones sin META (agregalas al objeto META del script):\n");
+    for (const f of missingMeta) {
+      console.log(`   • ${f}`);
+    }
+    console.log("");
+  }
+
+  // ─── Check inverso: META con migraciones que ya no existen ─
+  const missingFiles = Object.keys(META).filter(
+    (f) => !migrations.includes(f),
+  );
+  if (missingFiles.length > 0) {
+    console.log("⚠️  Entradas en META sin archivo correspondiente:\n");
+    for (const f of missingFiles) {
+      console.log(`   • ${f}`);
+    }
+    console.log("");
+  }
 
   const migrationRows = migrations.map((file) => ({
     file,
@@ -57,11 +101,13 @@ async function main() {
     description: META[file]?.description ?? "(sin descripción)",
   }));
 
+  const date = new Date().toISOString().split("T")[0];
+
   const content = `# 🗄️ Base de Datos
 
 Documentación técnica de la base de datos del proyecto.
 
-> ⚠️ **Este archivo se genera automáticamente** con \`node scripts\\create-database-doc.mjs\`.
+> ⚠️ **Este archivo se genera automáticamente** con \`node scripts\\create-database-doc.mjs\` (o \`npm run docs -- db\`).
 > **NO lo edites a mano.** Para cambiar algo, editá el script o agregá una migración.
 
 ---
@@ -100,15 +146,16 @@ Perfil del usuario. Espejo de \`auth.users\` (Supabase Auth).
 | \`sex\` | TEXT | CHECK: \`male\`, \`female\`, \`other\` |
 | \`height_cm\` | NUMERIC(5,2) | CHECK: > 0, < 300 |
 | \`goal\` | TEXT | CHECK: \`lose_fat\`, \`gain_muscle\`, \`maintain\` |
+| \`days_per_week\` | INT | CHECK: 1 a 7 (nullable, writeOnce post-onboarding) |
 | \`created_at\` | TIMESTAMPTZ | Default \`now()\` |
 | \`updated_at\` | TIMESTAMPTZ | Trigger \`handle_updated_at\` |
 
 **Triggers:**
 
 - \`handle_new_user\` (AFTER INSERT ON \`auth.users\`) → inserta fila en \`public.users\`
-- \`handle_updated_at\` (BEFORE UPDATE) → actualiza \`updated_at\`
+- \`handle_updated_at\` (BEFORE UPDATE ON \`public.users\`) → actualiza \`updated_at\`
 
-**RLS:** habilitado. Cada usuario solo ve/edita su propia fila.
+**RLS:** habilitado. 3 políticas (SELECT, INSERT, UPDATE) sobre \`auth.uid() = id\`.
 
 ---
 
@@ -119,19 +166,19 @@ Registro de medidas corporales. Un registro por usuario por día.
 | Campo | Tipo | Notas |
 |---|---|---|
 | \`id\` | UUID | PK, \`gen_random_uuid()\` |
-| \`user_id\` | UUID | FK → \`users.id\`, ON DELETE CASCADE |
+| \`user_id\` | UUID | FK → \`public.users.id\`, ON DELETE CASCADE |
 | \`date\` | DATE | NOT NULL |
 | \`weight_kg\` | NUMERIC(5,2) | NOT NULL, CHECK: > 0, < 500 |
 | \`body_fat_pct\` | NUMERIC(4,1) | Opcional, CHECK: 0–100 |
-| \`chest_cm\` | NUMERIC(5,1) | Opcional |
-| \`waist_cm\` | NUMERIC(5,1) | Opcional |
-| \`hip_cm\` | NUMERIC(5,1) | Opcional |
-| \`neck_cm\` | NUMERIC(5,1) | Opcional |
-| \`arm_cm\` | NUMERIC(5,1) | Opcional |
-| \`forearm_cm\` | NUMERIC(5,1) | Opcional |
-| \`thigh_cm\` | NUMERIC(5,1) | Opcional |
-| \`calf_cm\` | NUMERIC(5,1) | Opcional |
-| \`shoulder_cm\` | NUMERIC(5,1) | Opcional |
+| \`chest_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 300 |
+| \`waist_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 300 |
+| \`hip_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 300 |
+| \`neck_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 100 |
+| \`arm_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 100 |
+| \`forearm_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 100 |
+| \`thigh_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 150 |
+| \`calf_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 100 |
+| \`shoulder_cm\` | NUMERIC(5,1) | Opcional, CHECK: > 0, < 200 |
 | \`notes\` | TEXT | Opcional |
 | \`created_at\` | TIMESTAMPTZ | Default \`now()\` |
 | \`updated_at\` | TIMESTAMPTZ | Trigger \`handle_body_measurements_updated_at\` |
@@ -141,6 +188,8 @@ Registro de medidas corporales. Un registro por usuario por día.
 **Índice:** \`idx_body_measurements_user_date (user_id, date DESC)\` → optimiza listados ordenados por fecha.
 
 **RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) sobre \`auth.uid() = user_id\`.
+
+**Trigger:** \`trg_body_measurements_updated_at\` (BEFORE UPDATE) → actualiza \`updated_at\`.
 
 ---
 
@@ -176,12 +225,15 @@ Requiere Supabase CLI instalado y el proyecto linkeado.
 
 | Fecha | Cambio |
 |---|---|
-| 2026-09-29 | Creación inicial (Sprint 2) |
+| ${date} | Regeneración automática desde migraciones |
 `;
 
   await writeFile(join(docsDir, "DATABASE.md"), content, "utf8");
   console.log("   ✅ docs\\DATABASE.md");
-  console.log("\n🎉 Listo.");
+  console.log(`\n📊 Migraciones: ${migrations.length}`);
+  console.log(`   Con META: ${migrations.length - missingMeta.length}`);
+  console.log(`   Sin META: ${missingMeta.length}`);
+  console.log("\n🎉 Listo.\n");
 }
 
 main().catch((err) => {

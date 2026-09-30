@@ -5,6 +5,7 @@ Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- agrega cliente API, hooks de React Query, layout, onboarding, perfil y medidas (E.2 + E.3) (2026-09-30)
 - Sprint 0.5: monorepo con npm workspaces (apps/api, apps/web, packages/shared)
 - Configuración de TypeScript base + tsconfig por workspace
 - ESLint 10 con flat config + Prettier

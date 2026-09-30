@@ -7,16 +7,24 @@
 
 ## 🚦 PRÓXIMO PASO INMEDIATO
 
-**Continuar con E.2 del Sprint 2: cliente API + hooks React Query.**
+**Sprint 2 (Frontend) cerrado.** Arrancar **Sprint 3 — Rutinas**.
 
-Archivos a crear:
+Backend a construir:
 
-- `apps/web/src/lib/api.ts` — cliente axios con interceptor JWT de Supabase
-- `apps/web/src/lib/date.ts` — helper `getWeekRange()` (lunes-domingo local)
-- `apps/web/src/hooks/useProfile.ts` — `useProfile()` + `useUpdateProfile()`
-- `apps/web/src/hooks/useMeasurements.ts` — CRUD completo de medidas
+- Migración: tablas `exercises`, `routines`, `routine_exercises` + RLS
+- Seed de ~50 ejercicios base
+- Endpoints `GET/POST/PUT/DELETE /api/v1/routines` y `GET /api/v1/exercises`
+- Schemas Zod en `packages/shared`
+- Tests
 
-Después: **E.3 (Onboarding + Perfil + Medidas)**.
+Frontend a construir:
+
+- `/routines` — lista de rutinas
+- `/routines/:id` — detalle con ejercicios agrupados por día
+- `/routines/new` y `/routines/:id/edit` — form de rutina
+- Selector de ejercicios con filtro por músculo
+
+Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 3.
 
 ---
 
@@ -28,11 +36,11 @@ Después: **E.3 (Onboarding + Perfil + Medidas)**.
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `1ba75b8 - feat(api): agrega reglas writeOnce en profile y validación semanal en measurements (19 minutes ago)` |
+| **Último commit** | `795f39e - feat(web): implementa pantalla de medidas con Recharts y guard de onboarding (22 minutes ago)` |
 | **Cambios sin commitear** | ⚠️ Sí |
 | **Fase** | Fase 1 — MVP |
-| **Sprint actual** | Sprint 2 — Frontend (E.2 + E.3) |
-| **Progreso global** | ~40% |
+| **Sprint actual** | Sprint 3 — Rutinas (PRÓXIMO) |
+| **Progreso global** | ~50% |
 | **Última actualización** | 2026-09-30 |
 
 ---
@@ -77,7 +85,8 @@ Ver [STACK.md](./STACK.md) para justificación.
 - NO usamos Prisma → `@supabase/supabase-js` (Prisma fallaba en Windows)
 - Zod schemas viven en `packages/shared` → front y back comparten validación
 - Semana calculada por el cliente (lunes-domingo local) → se envía `week_start` y `week_end` al backend
-- Profile writeOnce: `birth_date`, `sex`, `height_cm`, `goal` se bloquean post-onboarding
+- Profile writeOnce: `birth_date`, `sex`, `height_cm`, `goal`, `days_per_week` se bloquean post-onboarding
+- Guard de onboarding: si los 4 campos clave son `null`, redirige a `/onboarding`
 
 ---
 
@@ -96,9 +105,12 @@ fitness-trainer-app/
 │   │   └── tests/              (26 tests pasando)
 │   └── web/                    → Frontend React + Vite + TS
 │       └── src/
-│           ├── components/     (ProtectedRoute)
-│           ├── lib/            (supabase.ts)
-│           ├── pages/          (Login, Register, AuthCallback, Dashboard)
+│           ├── components/     (AppLayout, ProtectedRoute)
+│           ├── hooks/          (useProfile, useMeasurements)
+│           ├── lib/            (api, supabase, date)
+│           ├── pages/          (Login, Register, AuthCallback,
+│           │                    Onboarding, Dashboard, Profile,
+│           │                    Measurements)
 │           ├── stores/         (auth.ts — Zustand)
 │           ├── App.tsx
 │           └── main.tsx
@@ -108,7 +120,7 @@ fitness-trainer-app/
 │           ├── schemas/        (profile.ts, measurement.ts)
 │           └── index.ts
 ├── supabase/
-│   └── migrations/             (4 migraciones versionadas)
+│   └── migrations/             (5 migraciones versionadas)
 ├── docs/                       → Documentación (generada por scripts)
 ├── scripts/                    → docs.mjs + templates/
 ├── .github/workflows/          → CI/CD
@@ -134,7 +146,7 @@ Ubicados en `scripts/`. **Usar SIEMPRE en vez de editar docs a mano.**
 | `npm run docs -- check` | Verifica integridad de la documentación |
 | `npm run docs -- context` | Regenera AI_CONTEXT.md desde el template |
 | `npm run docs -- changelog --type=feat --message="..."` | Agrega entrada al CHANGELOG |
-| `npm run docs -- roadmap --item="..."` | Marca item del ROADMAP como completado |
+| `npm run docs -- roadmap --item="..."` | Marca item del ROADMAP como completado (match parcial) |
 | `npm run docs -- help` | Ver todos los comandos |
 
 **Reglas para la IA que continúe:**
@@ -153,6 +165,7 @@ Ubicados en `scripts/`. **Usar SIEMPRE en vez de editar docs a mano.**
 - Toda doc se crea/modifica vía script en `scripts/`
 - Nunca editar docs a mano ni con VS Code directamente
 - Scripts `.mjs` cuando son >3 archivos a crear/modificar
+- `roadmap --item="..."` hace match parcial (substring)
 
 ### SQL / Supabase
 
@@ -189,6 +202,7 @@ Monorepo, docs, CI/CD, Supabase configurado, Auth completo (email + Google OAuth
 - Migraciones SQL versionadas + `docs/DATABASE.md`
 - Endpoints `GET/PUT /api/v1/profile` con reglas writeOnce
 - Endpoints CRUD `/api/v1/measurements` con validación semanal
+- Migración `20260930000001_add_days_per_week_to_users.sql`
 - **26 tests pasando** en backend
 
 **Endpoints implementados:**
@@ -202,31 +216,10 @@ Monorepo, docs, CI/CD, Supabase configurado, Auth completo (email + Google OAuth
 | PUT | `/api/v1/measurements/:id` | 200, 400, 401, 403, 404, 409 |
 | DELETE | `/api/v1/measurements/:id` | 204, 401, 403, 404 |
 
----
+### Sprint 2 — Frontend COMPLETO (E.2 + E.3)
 
-## 🔄 Lo que falta (Sprint 2 — Frontend)
-
-### E.2 — Cliente API + hooks (~30 min)
-
-- [ ] `apps/web/src/lib/api.ts` — axios con interceptor JWT
-- [ ] `apps/web/src/lib/date.ts` — `getWeekRange()` según timezone
-- [ ] `apps/web/src/hooks/useProfile.ts` — React Query GET/PUT
-- [ ] `apps/web/src/hooks/useMeasurements.ts` — React Query CRUD
-
-### E.3 — Onboarding + Perfil + Medidas (~1.5 h)
-
-- [ ] Onboarding de 4 pasos (`/onboarding`)
-- [ ] Pantalla de perfil (`/profile`) con campos read-only
-- [ ] Formulario de medidas con validación Zod
-- [ ] Lista de medidas con gráfico Recharts
-- [ ] Guard de onboarding en `ProtectedRoute`
-
-### G — Docs + cierre
-
-- [ ] Actualizar `docs/API.md`
-- [ ] Actualizar `docs/DATA_MODEL.md`
-- [ ] Actualizar `docs/ROADMAP.md`
-- [ ] `npm run docs -- sync`
+- **E.2** — Cliente API (`api.ts` con interceptor JWT + `ApiError`), helper `getWeekRange()`, hooks React Query: `useProfile`, `useUpdateProfile`, `useMeasurements`, `useCreateMeasurement`, `useUpdateMeasurement`, `useDeleteMeasurement`
+- **E.3** — Wizard de onboarding (4 pasos), pantalla de perfil con nombre editable y 4 campos writeOnce read-only, pantalla de medidas con form + gráfico Recharts + historial + delete, guard de onboarding en `ProtectedRoute`, layout común (`AppLayout`) con nav
 
 ---
 
@@ -262,6 +255,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```env
 VITE_SUPABASE_URL=https://ourssnznqjladulhmpeq.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...
+VITE_API_URL=http://localhost:3000/api/v1
 ```
 
 ---
@@ -277,6 +271,9 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 - Supabase chain: `.order()` y `.limit()` cierran el chain → filtros antes
 - TypeScript estricto: `existing[0]?.id` o guard explícito
 - Prisma NO se instala en Windows → usamos Supabase SDK
+- Scripts `.mjs` con template strings >500 líneas se cortan al pegar en VS Code → partir en varios archivos
+- `useCreateMeasurement` requiere `week_start`/`week_end` → calcular con `getWeekRange()` antes de llamar
+- Si el frontend tira `Network Error`, primero verificar que **ambos** dev servers estén corriendo (web en 5173, api en 3000)
 
 ---
 
