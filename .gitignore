@@ -16,3 +16,6 @@ coverage/
 .env.*.local
 apps/*/.env
 packages/*/.env
+# Archivos temporales de volcado
+dump-*.txt
+*.bak
