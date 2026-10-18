@@ -53,6 +53,10 @@ const META = {
     sprint: 3,
     description: "Seed de 55 ejercicios base",
   },
+  "20261018000003_create_workout_sessions.sql": {
+    sprint: 4,
+    description: "Crea `workout_sessions`, `workout_sets` + FKs, RLS e índices",
+  },
 };
 
 // ─────────────────────────────────────────────────────────────
