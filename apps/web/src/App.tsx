@@ -11,6 +11,7 @@ import RoutineDetail from "./pages/RoutineDetail.js";
 import RoutineForm from "./pages/RoutineForm.js";
 import Workouts from "./pages/Workouts.js";
 import WorkoutForm from "./pages/WorkoutForm.js";
+import WorkoutActive from "./pages/WorkoutActive.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import AppLayout from "./components/AppLayout.js";
 
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/routines/:id/edit" element={<RoutineForm />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/workouts/new" element={<WorkoutForm />} />
+          <Route path="/workouts/:id" element={<WorkoutActive />} />
         </Route>
 
         {/* Fallback */}

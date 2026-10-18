@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type BackendSuccessBody } from "../lib/api.js";
 import type {
   CreateWorkoutSessionInput,
@@ -18,6 +18,7 @@ export interface WorkoutSession {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  sets?: import("./useWorkoutSets.js").WorkoutSetItem[];
 }
 
 export interface WorkoutFilters {
