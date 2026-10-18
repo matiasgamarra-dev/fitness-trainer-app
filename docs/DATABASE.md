@@ -32,6 +32,8 @@ Ver [`supabase/README.md`](../supabase/README.md) para el flujo detallado.
 | `20261018000001_create_exercises_routines.sql` | 3 | Crea `exercises`, `routines`, `routine_exercises` + RLS |
 | `20261018000002_seed_exercises.sql` | 3 | Seed de 55 ejercicios base |
 | `20261018000003_create_workout_sessions.sql` | 4 | Crea `workout_sessions`, `workout_sets` + FKs, RLS e índices |
+| `20261018000004_create_nutrition.sql` | 5 | Crea `foods`, `nutrition_goals`, `meals`, `meal_items` + FKs, RLS, índices y triggers |
+| `20261018000005_seed_foods.sql` | 5 | Seed de 200 alimentos base con macros por 100g |
 
 ---
 

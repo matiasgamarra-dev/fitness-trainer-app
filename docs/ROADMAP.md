@@ -121,8 +121,8 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 5 â€” Nutrición (Semana 6)
 
 **Backend:**
-- [ ] Tablas `foods`, `meals`, `meal_items`, `nutrition_goals`
-- [ ] Seed de ~200 alimentos
+- [x] Tablas `foods`, `meals`, `meal_items`, `nutrition_goals`
+- [x] Seed de ~200 alimentos
 - [ ] Endpoints de comidas
 - [ ] Buscador de alimentos
 

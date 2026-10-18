@@ -57,6 +57,14 @@ const META = {
     sprint: 4,
     description: "Crea `workout_sessions`, `workout_sets` + FKs, RLS e índices",
   },
+  "20261018000004_create_nutrition.sql": {
+    sprint: 5,
+    description: "Crea `foods`, `nutrition_goals`, `meals`, `meal_items` + FKs, RLS, índices y triggers",
+  },
+  "20261018000005_seed_foods.sql": {
+    sprint: 5,
+    description: "Seed de 200 alimentos base con macros por 100g",
+  },
 };
 
 // ─────────────────────────────────────────────────────────────

@@ -5,6 +5,8 @@ Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- nutricion: seed de 200 alimentos base con macros por 100g (2026-10-18)
+- nutricion: crea tablas foods, meals, meal_items, nutrition_goals + RLS (2026-10-18)
 - agrega 15 tests backend + 25 tests web para workouts (2026-10-18)
 - Sprint 4: entrenamiento activo completo (migracion, schemas, endpoints, hooks, 4 pantallas, 40 tests) (2026-10-18)
 - Sprint 3: rutinas con exercises, routines y routine_exercises + endpoints + UI (2026-10-18)
