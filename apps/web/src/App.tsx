@@ -8,6 +8,7 @@ import Profile from "./pages/Profile.js";
 import Measurements from "./pages/Measurements.js";
 import Routines from "./pages/Routines.js";
 import RoutineDetail from "./pages/RoutineDetail.js";
+import RoutineForm from "./pages/RoutineForm.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import AppLayout from "./components/AppLayout.js";
 
@@ -43,8 +44,9 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/measurements" element={<Measurements />} />
           <Route path="/routines" element={<Routines />} />
-          <Route path="/routines/new" element={<Routines />} />
+          <Route path="/routines/new" element={<RoutineForm />} />
           <Route path="/routines/:id" element={<RoutineDetail />} />
+          <Route path="/routines/:id/edit" element={<RoutineForm />} />
         </Route>
 
         {/* Fallback */}
