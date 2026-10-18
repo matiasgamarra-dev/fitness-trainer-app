@@ -1,4 +1,4 @@
-﻿import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/auth.js";
 
 interface NavItem {
@@ -11,6 +11,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/profile", label: "Perfil" },
   { to: "/measurements", label: "Medidas" },
   { to: "/routines", label: "Rutinas" },
+  { to: "/workouts", label: "Entrenamientos" },
 ];
 
 export default function AppLayout() {

@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Dashboard from "./pages/Dashboard.js";
@@ -9,6 +9,7 @@ import Measurements from "./pages/Measurements.js";
 import Routines from "./pages/Routines.js";
 import RoutineDetail from "./pages/RoutineDetail.js";
 import RoutineForm from "./pages/RoutineForm.js";
+import Workouts from "./pages/Workouts.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import AppLayout from "./components/AppLayout.js";
 
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/routines/new" element={<RoutineForm />} />
           <Route path="/routines/:id" element={<RoutineDetail />} />
           <Route path="/routines/:id/edit" element={<RoutineForm />} />
+          <Route path="/workouts" element={<Workouts />} />
         </Route>
 
         {/* Fallback */}

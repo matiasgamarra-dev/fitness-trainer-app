@@ -51,3 +51,45 @@ function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+// ─── Helpers para workouts ───────────────────────────────────
+
+/**
+ * Formatea un ISO datetime como "18 oct 2026 · 10:00".
+ * Usa la timezone local del navegador.
+ */
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const months = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const day = d.getDate();
+  const month = months[d.getMonth()];
+  const year = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${day} ${month} ${year} · ${hh}:${mm}`;
+}
+
+/**
+ * Duración entre dos ISO datetimes, en formato "45 min" o "1h 20min".
+ * Si alguno es null o inválido, devuelve "".
+ */
+export function formatDuration(startIso: string, endIso: string | null): string {
+  if (!endIso) return "";
+  const start = new Date(startIso).getTime();
+  const end = new Date(endIso).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return "";
+  const totalMin = Math.floor((end - start) / 60000);
+  if (totalMin < 60) return `${totalMin} min`;
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
+}
+
+/**
+ * Nombre del día en español (1 = Lunes, 7 = Domingo).
+ */
+export function dayOfWeekName(day: number | null): string {
+  if (day === null || day < 1 || day > 7) return "";
+  const names = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  return names[day - 1];
+}
