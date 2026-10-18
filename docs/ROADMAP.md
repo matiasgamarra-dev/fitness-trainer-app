@@ -94,16 +94,16 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 3 â€” Rutinas (Semana 4)
 
 **Backend:**
-- [ ] Tablas `exercises`, `routines`, `routine_exercises`
-- [ ] Seed de ~50 ejercicios base
-- [ ] CRUD de rutinas
-- [ ] Endpoints de ejercicios
+- [x] Tablas `exercises`, `routines`, `routine_exercises`
+- [x] Seed de ~50 ejercicios base
+- [x] CRUD de rutinas
+- [x] Endpoints de ejercicios
 
 **Frontend:**
-- [ ] Lista de rutinas
-- [ ] Detalle de rutina
-- [ ] Crear/editar rutina
-- [ ] Selector de ejercicios
+- [x] Lista de rutinas
+- [x] Detalle de rutina
+- [x] Crear/editar rutina
+- [x] Selector de ejercicios
 
 ### Sprint 4 â€” Entrenamiento (Semana 5)
 

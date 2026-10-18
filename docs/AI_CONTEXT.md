@@ -7,24 +7,23 @@
 
 ## 🚦 PRÓXIMO PASO INMEDIATO
 
-**Sprint 2 (Frontend) cerrado.** Arrancar **Sprint 3 — Rutinas**.
+**Sprint 3 (Rutinas) cerrado.** Arrancar **Sprint 4 — Entrenamiento activo**.
 
 Backend a construir:
 
-- Migración: tablas `exercises`, `routines`, `routine_exercises` + RLS
-- Seed de ~50 ejercicios base
-- Endpoints `GET/POST/PUT/DELETE /api/v1/routines` y `GET /api/v1/exercises`
-- Schemas Zod en `packages/shared`
+- Migración: tablas `workout_sessions`, `workout_sets` + RLS
+- Endpoints `GET/POST/PUT /api/v1/workouts` y `GET /api/v1/workouts/stats`
+- Schemas Zod en `packages/shared` (workout.ts)
 - Tests
 
 Frontend a construir:
 
-- `/routines` — lista de rutinas
-- `/routines/:id` — detalle con ejercicios agrupados por día
-- `/routines/new` y `/routines/:id/edit` — form de rutina
-- Selector de ejercicios con filtro por músculo
+- `/workouts` — historial de entrenamientos
+- `/workouts/new` — iniciar sesión (seleccionar rutina + día)
+- `/workouts/:id` — sesión activa con timer + registrar series
+- Dashboard: mostrar rutina activa y último entrenamiento
 
-Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 3.
+Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 4.
 
 ---
 
@@ -36,11 +35,11 @@ Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 3.
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `a3996c2 - chore: elimina dump-tests.txt y agrega patrón al gitignore (49 seconds ago)` |
+| **Último commit** | `6ff9d88 - test(web): agrega tests de Routines, RoutineDetail y RoutineForm (4 minutes ago)` |
 | **Cambios sin commitear** | ⚠️ Sí |
 | **Fase** | Fase 1 — MVP |
-| **Sprint actual** | Sprint 3 — Rutinas (PRÓXIMO) |
-| **Progreso global** | ~50% |
+| **Sprint actual** | Sprint 4 — Entrenamiento activo (PRÓXIMO) |
+| **Progreso global** | ~65% |
 | **Última actualización** | 2026-10-18 |
 
 ---
@@ -87,6 +86,7 @@ Ver [STACK.md](./STACK.md) para justificación.
 - Semana calculada por el cliente (lunes-domingo local) → se envía `week_start` y `week_end` al backend
 - Profile writeOnce: `birth_date`, `sex`, `height_cm`, `goal`, `days_per_week` se bloquean post-onboarding
 - Guard de onboarding: si los 4 campos clave son `null`, redirige a `/onboarding`
+- Zod 4 `.uuid()` solo acepta UUID v4 → usar `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx` en tests
 
 ---
 
@@ -99,28 +99,32 @@ fitness-trainer-app/
 │   │   ├── src/
 │   │   │   ├── config/         (env.ts, supabase.ts)
 │   │   │   ├── middleware/     (auth.ts — verifyUser con jose + JWKS)
-│   │   │   ├── routes/         (health, auth, profile, measurements)
+│   │   │   ├── routes/         (health, auth, profile, measurements,
+│   │   │   │                    exercises, routines)
 │   │   │   ├── index.ts
 │   │   │   └── server.ts
 │   │   └── tests/              (26 tests pasando)
 │   └── web/                    → Frontend React + Vite + TS
 │       └── src/
-│           ├── components/     (AppLayout, ProtectedRoute)
-│           ├── hooks/          (useProfile, useMeasurements)
+│           ├── components/     (AppLayout, ProtectedRoute, ExerciseSelector)
+│           ├── hooks/          (useProfile, useMeasurements,
+│           │                    useExercises, useRoutines)
 │           ├── lib/            (api, supabase, date)
 │           ├── pages/          (Login, Register, AuthCallback,
 │           │                    Onboarding, Dashboard, Profile,
-│           │                    Measurements)
+│           │                    Measurements, Routines, RoutineDetail,
+│           │                    RoutineForm)
 │           ├── stores/         (auth.ts — Zustand)
 │           ├── App.tsx
 │           └── main.tsx
 ├── packages/
 │   └── shared/                 → Zod schemas compartidos
 │       └── src/
-│           ├── schemas/        (profile.ts, measurement.ts)
+│           ├── schemas/        (profile.ts, measurement.ts,
+│           │                    exercise.ts, routine.ts)
 │           └── index.ts
 ├── supabase/
-│   └── migrations/             (5 migraciones versionadas)
+│   └── migrations/             (7 migraciones versionadas)
 ├── docs/                       → Documentación (generada por scripts)
 ├── scripts/                    → docs.mjs + templates/
 ├── .github/workflows/          → CI/CD
@@ -145,6 +149,7 @@ Ubicados en `scripts/`. **Usar SIEMPRE en vez de editar docs a mano.**
 | `npm run docs -- sync` | Sincroniza (context + check) |
 | `npm run docs -- check` | Verifica integridad de la documentación |
 | `npm run docs -- context` | Regenera AI_CONTEXT.md desde el template |
+| `npm run docs -- db` | Regenera DATABASE.md desde migraciones |
 | `npm run docs -- changelog --type=feat --message="..."` | Agrega entrada al CHANGELOG |
 | `npm run docs -- roadmap --item="..."` | Marca item del ROADMAP como completado (match parcial) |
 | `npm run docs -- help` | Ver todos los comandos |
@@ -220,6 +225,31 @@ Monorepo, docs, CI/CD, Supabase configurado, Auth completo (email + Google OAuth
 
 - **E.2** — Cliente API (`api.ts` con interceptor JWT + `ApiError`), helper `getWeekRange()`, hooks React Query: `useProfile`, `useUpdateProfile`, `useMeasurements`, `useCreateMeasurement`, `useUpdateMeasurement`, `useDeleteMeasurement`
 - **E.3** — Wizard de onboarding (4 pasos), pantalla de perfil con nombre editable y 4 campos writeOnce read-only, pantalla de medidas con form + gráfico Recharts + historial + delete, guard de onboarding en `ProtectedRoute`, layout común (`AppLayout`) con nav
+- **Tests:** 19 tests web (Login, Register, Profile, Onboarding, Measurements)
+
+### Sprint 3 — Rutinas COMPLETO (S.3.0 a S.3.7)
+
+- **S.3.0** — Migración `exercises`, `routines`, `routine_exercises` + RLS + seed 55 ejercicios. Schemas Zod `exercise.ts` y `routine.ts`.
+- **S.3.1** — Endpoints backend: `GET /api/v1/exercises` (con filtros), `GET/POST/PUT/DELETE /api/v1/routines`, `GET /api/v1/routines/:id` (con exercises embebidos).
+- **S.3.2** — Hooks React Query: `useExercises` (staleTime static), `useRoutines`, `useRoutine`, `useCreateRoutine`, `useUpdateRoutine`, `useDeleteRoutine` (staleTime 30s + onSettled).
+- **S.3.3** — Pantalla `/routines` (lista con cards, empty state, badge "Activa").
+- **S.3.4** — Pantalla `/routines/:id` (detalle con ejercicios agrupados por día, delete con confirm).
+- **S.3.5** — Pantalla `/routines/new` y `/routines/:id/edit` (form + modal selector de ejercicios con filtros).
+- **S.3.6** — Tests: Routines (7), RoutineDetail (10), RoutineForm (12) = 29 tests nuevos.
+- **S.3.7** — Cierre de sprint (docs + commit).
+
+**Endpoints nuevos del Sprint 3:**
+
+| Método | Endpoint | Códigos |
+|---|---|---|
+| GET | `/api/v1/exercises` | 200, 400, 401, 500 |
+| GET | `/api/v1/routines` | 200, 401, 500 |
+| GET | `/api/v1/routines/:id` | 200, 401, 404, 500 |
+| POST | `/api/v1/routines` | 201, 400, 401, 500 |
+| PUT | `/api/v1/routines/:id` | 200, 400, 401, 403, 404, 500 |
+| DELETE | `/api/v1/routines/:id` | 204, 401, 403, 404, 500 |
+
+**Total tests al cierre del Sprint 3:** 26 (API) + 48 (Web) = **74 tests verdes**.
 
 ---
 
@@ -227,7 +257,6 @@ Monorepo, docs, CI/CD, Supabase configurado, Auth completo (email + Google OAuth
 
 | Sprint | Objetivo |
 |---|---|
-| Sprint 3 | Rutinas (exercises, routines, routine_exercises) |
 | Sprint 4 | Entrenamiento activo (workout_sessions, workout_sets) |
 | Sprint 5 | Nutrición (foods, meals, meal_items, nutrition_goals) |
 | Sprint 6 | Progreso + Deploy (Railway + Vercel) |
@@ -274,6 +303,9 @@ VITE_API_URL=http://localhost:3000/api/v1
 - Scripts `.mjs` con template strings >500 líneas se cortan al pegar en VS Code → partir en varios archivos
 - `useCreateMeasurement` requiere `week_start`/`week_end` → calcular con `getWeekRange()` antes de llamar
 - Si el frontend tira `Network Error`, primero verificar que **ambos** dev servers estén corriendo (web en 5173, api en 3000)
+- **Zod 4** `.uuid()` solo acepta UUID v4 → usar `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx` en tests
+- **PowerShell + chat**: pegar comandos línea por línea, nunca bloques multilínea con `@{...}` o `foreach`
+- **PowerShell + UTF-8**: los archivos que se escriben con `Set-Content -Encoding utf8` mantienen el encoding; los que se pegan por chat pueden perder tildes/emojis
 
 ---
 

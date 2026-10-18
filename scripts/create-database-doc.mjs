@@ -45,6 +45,14 @@ const META = {
     sprint: 2,
     description: "Agrega `days_per_week` (INT, 1-7) a `public.users` con CHECK",
   },
+  "20261018000001_create_exercises_routines.sql": {
+    sprint: 3,
+    description: "Crea `exercises`, `routines`, `routine_exercises` + RLS",
+  },
+  "20261018000002_seed_exercises.sql": {
+    sprint: 3,
+    description: "Seed de 55 ejercicios base",
+  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -73,7 +81,6 @@ async function main() {
 
   const migrations = await getMigrations();
 
-  // ─── Check de integridad: migraciones sin META ─────────────
   const missingMeta = migrations.filter((f) => !META[f]);
   if (missingMeta.length > 0) {
     console.log("⚠️  Migraciones sin META (agregalas al objeto META del script):\n");
@@ -83,7 +90,6 @@ async function main() {
     console.log("");
   }
 
-  // ─── Check inverso: META con migraciones que ya no existen ─
   const missingFiles = Object.keys(META).filter(
     (f) => !migrations.includes(f),
   );
@@ -190,6 +196,79 @@ Registro de medidas corporales. Un registro por usuario por día.
 **RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) sobre \`auth.uid() = user_id\`.
 
 **Trigger:** \`trg_body_measurements_updated_at\` (BEFORE UPDATE) → actualiza \`updated_at\`.
+
+---
+
+### \`public.exercises\`
+
+Catálogo global de ejercicios. **Solo lectura** (seed por migración).
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| \`id\` | UUID | PK, \`gen_random_uuid()\` |
+| \`name\` | VARCHAR(100) | NOT NULL, UNIQUE |
+| \`muscle_group\` | TEXT | NOT NULL, CHECK: chest, back, shoulders, biceps, triceps, legs, glutes, core, cardio, full_body |
+| \`equipment\` | TEXT | NOT NULL, CHECK: barbell, dumbbell, machine, cable, bodyweight, kettlebell, band, other |
+| \`description\` | TEXT | Opcional |
+| \`created_at\` | TIMESTAMPTZ | Default \`now()\` |
+
+**Seed:** 55 ejercicios (6 chest, 7 back, 7 shoulders, 5 biceps, 5 triceps, 8 legs, 3 glutes, 5 core, 5 cardio, 4 full_body).
+
+**RLS:** habilitado. 1 política (SELECT para todos) → \`true\`. Nadie puede escribir desde la API.
+
+---
+
+### \`public.routines\`
+
+Rutinas de entrenamiento por usuario.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| \`id\` | UUID | PK, \`gen_random_uuid()\` |
+| \`user_id\` | UUID | NOT NULL, FK → \`public.users.id\`, ON DELETE CASCADE |
+| \`name\` | VARCHAR(100) | NOT NULL |
+| \`description\` | TEXT | Opcional |
+| \`days_per_week\` | INT | NOT NULL, CHECK: 1 a 7 |
+| \`is_active\` | BOOLEAN | NOT NULL, default \`true\`. Solo 1 activa por usuario |
+| \`created_at\` | TIMESTAMPTZ | Default \`now()\` |
+| \`updated_at\` | TIMESTAMPTZ | Trigger \`trg_routines_updated_at\` |
+
+**Índices:**
+
+- \`idx_routines_user_id (user_id)\`
+- \`idx_routines_user_active (user_id, is_active)\`
+
+**RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) sobre \`auth.uid() = user_id\`.
+
+**Trigger:** \`trg_routines_updated_at\` (BEFORE UPDATE) → actualiza \`updated_at\`.
+
+**Regla de negocio:** al crear/activar una rutina con \`is_active=true\`, el backend desactiva automáticamente las demás del mismo usuario.
+
+---
+
+### \`public.routine_exercises\`
+
+Ejercicios asignados a una rutina, agrupados por día.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| \`id\` | UUID | PK, \`gen_random_uuid()\` |
+| \`routine_id\` | UUID | NOT NULL, FK → \`public.routines.id\`, ON DELETE CASCADE |
+| \`exercise_id\` | UUID | NOT NULL, FK → \`public.exercises.id\`, ON DELETE RESTRICT |
+| \`day_of_week\` | INT | NOT NULL, CHECK: 1 a 7 (lunes=1, domingo=7) |
+| \`order_index\` | INT | NOT NULL, CHECK: >= 0 (orden dentro del día) |
+| \`sets\` | INT | NOT NULL, CHECK: 1 a 20 |
+| \`reps\` | VARCHAR(20) | NOT NULL (ej. "8", "8-10", "AMRAP") |
+| \`rest_seconds\` | INT | NOT NULL, default 60, CHECK: 0 a 600 |
+| \`notes\` | TEXT | Opcional |
+| \`created_at\` | TIMESTAMPTZ | Default \`now()\` |
+
+**Índices:**
+
+- \`idx_routine_exercises_routine (routine_id, day_of_week, order_index)\`
+- \`idx_routine_exercises_exercise (exercise_id)\`
+
+**RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) con \`EXISTS\` sobre \`routines.user_id = auth.uid()\`.
 
 ---
 
