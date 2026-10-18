@@ -36,12 +36,12 @@ Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 3.
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `795f39e - feat(web): implementa pantalla de medidas con Recharts y guard de onboarding (22 minutes ago)` |
+| **Último commit** | `a3996c2 - chore: elimina dump-tests.txt y agrega patrón al gitignore (49 seconds ago)` |
 | **Cambios sin commitear** | ⚠️ Sí |
 | **Fase** | Fase 1 — MVP |
 | **Sprint actual** | Sprint 3 — Rutinas (PRÓXIMO) |
 | **Progreso global** | ~50% |
-| **Última actualización** | 2026-09-30 |
+| **Última actualización** | 2026-10-18 |
 
 ---
 
@@ -290,6 +290,7 @@ VITE_API_URL=http://localhost:3000/api/v1
 
 | Fecha | Cambio |
 |---|---|
+| 2026-10-18 | Regeneración automática desde template |
 | 2026-09-30 | Regeneración automática desde template |
 | 2026-09-27 | Creación inicial del documento |
 | 2026-09-27 | Contenido completo (arquitectura, scripts, reglas) |

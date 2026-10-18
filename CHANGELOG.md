@@ -5,6 +5,7 @@ Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- agrega 15 tests de Profile, Onboarding y Measurements (19 tests web totales) (2026-10-18)
 - agrega cliente API, hooks de React Query, layout, onboarding, perfil y medidas (E.2 + E.3) (2026-09-30)
 - Sprint 0.5: monorepo con npm workspaces (apps/api, apps/web, packages/shared)
 - Configuración de TypeScript base + tsconfig por workspace

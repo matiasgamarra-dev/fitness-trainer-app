@@ -1,49 +1,49 @@
-# 🗺️ Roadmap del Proyecto
+﻿# ðŸ—ºï¸ Roadmap del Proyecto
 
 Plan de desarrollo continuo, por fases y sprints.
 
 ## Estado actual
 
-**Fase**: 1 — MVP
-**Sprint**: 2 — Perfil y Onboarding (PRÓXIMO)
-**Progreso global**: 25%
+**Fase**: 1 â€” MVP
+**Sprint**: 2 — Perfil y Onboarding ✅ (COMPLETADO)
+**Progreso global**: 40%
 
 ---
 
-## Fase 0 — Fundaciones (Semana 1) ✅
+## Fase 0 â€” Fundaciones (Semana 1) âœ…
 
-### Sprint 0 — Setup ✅ (COMPLETADO)
+### Sprint 0 â€” Setup âœ… (COMPLETADO)
 
 - [x] Crear repositorio en GitHub
 - [x] Instalar Git y Node localmente
 - [x] Estructura profesional de carpetas
-- [x] Documentación inicial (README, LICENSE, CONTRIBUTING)
+- [x] DocumentaciÃ³n inicial (README, LICENSE, CONTRIBUTING)
 - [x] Docs extendidos (ARCHITECTURE, API, DEVELOPMENT)
 
-### Sprint 0.5 — Planificación + Setup técnico ✅ (COMPLETADO)
+### Sprint 0.5 â€” PlanificaciÃ³n + Setup tÃ©cnico âœ… (COMPLETADO)
 
-**Planificación:**
-- [x] Documento de visión (PRODUCT.md)
+**PlanificaciÃ³n:**
+- [x] Documento de visiÃ³n (PRODUCT.md)
 - [x] Modelo de datos (DATA_MODEL.md)
-- [x] Stack tecnológico (STACK.md)
+- [x] Stack tecnolÃ³gico (STACK.md)
 - [x] Wireframes (WIREFRAMES.md)
 - [x] Roadmap detallado (este archivo)
 
-**Setup técnico:**
+**Setup tÃ©cnico:**
 - [x] Reestructurar a monorepo (apps/api, apps/web, packages/shared)
 - [x] Configurar npm workspaces
-- [x] Configurar TypeScript (raíz + apps)
+- [x] Configurar TypeScript (raÃ­z + apps)
 - [x] Configurar ESLint + Prettier
 - [x] Configurar scripts de desarrollo
 - [x] Instalar dependencias base del backend (Express)
 - [x] Primer endpoint "hola mundo" funcionando
-- [x] Script único de docs (`docs.mjs`)
+- [x] Script Ãºnico de docs (`docs.mjs`)
 
 ---
 
-## Fase 1 — MVP (Semanas 2-6)
+## Fase 1 â€” MVP (Semanas 2-6)
 
-### Sprint 1 — Autenticación ✅ (COMPLETADO)
+### Sprint 1 â€” AutenticaciÃ³n âœ… (COMPLETADO)
 
 **Infraestructura:**
 - [x] Crear proyecto Supabase
@@ -77,21 +77,21 @@ Plan de desarrollo continuo, por fases y sprints.
 - [x] docs/DEPLOYMENT.md
 - [x] docs/SECURITY.md
 
-### Sprint 2 — Perfil y Onboarding (Semana 3) ← PRÓXIMO
+### Sprint 2 — Perfil y Onboarding ✅ (COMPLETADO)
 
 **Backend:**
 - [x] Modelo `BodyMeasurement` (SQL en Supabase)
 - [x] Endpoints de perfil (GET/PUT)
 - [x] Endpoints de medidas (CRUD)
-- [ ] Tests
+- [x] Tests
 
 **Frontend:**
 - [x] Onboarding (4 pasos)
 - [x] Pantalla de perfil
-- [x] Edición de datos
-- [ ] Tests
+- [x] EdiciÃ³n de datos
+- [x] Tests
 
-### Sprint 3 — Rutinas (Semana 4)
+### Sprint 3 â€” Rutinas (Semana 4)
 
 **Backend:**
 - [ ] Tablas `exercises`, `routines`, `routine_exercises`
@@ -105,7 +105,7 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Crear/editar rutina
 - [ ] Selector de ejercicios
 
-### Sprint 4 — Entrenamiento (Semana 5)
+### Sprint 4 â€” Entrenamiento (Semana 5)
 
 **Backend:**
 - [ ] Tablas `workout_sessions`, `workout_sets`
@@ -116,9 +116,9 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Pantalla de entrenamiento activo
 - [ ] Timer de descanso
 - [ ] Historial de entrenamientos
-- [ ] Estadísticas básicas
+- [ ] EstadÃ­sticas bÃ¡sicas
 
-### Sprint 5 — Nutrición (Semana 6)
+### Sprint 5 â€” NutriciÃ³n (Semana 6)
 
 **Backend:**
 - [ ] Tablas `foods`, `meals`, `meal_items`, `nutrition_goals`
@@ -127,16 +127,16 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Buscador de alimentos
 
 **Frontend:**
-- [ ] Pantalla de nutrición diaria
+- [ ] Pantalla de nutriciÃ³n diaria
 - [ ] Buscador de alimentos
-- [ ] Añadir comidas
+- [ ] AÃ±adir comidas
 
-### Sprint 6 — Progreso y Deploy (Semana 7)
+### Sprint 6 â€” Progreso y Deploy (Semana 7)
 
 **Frontend:**
 - [ ] Dashboard con resumen
-- [ ] Pantalla de progreso con gráficos (Recharts)
-- [ ] Comparativa de períodos
+- [ ] Pantalla de progreso con grÃ¡ficos (Recharts)
+- [ ] Comparativa de perÃ­odos
 
 **Deploy:**
 - [ ] Deploy backend en Railway
@@ -146,71 +146,71 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ---
 
-## Fase 2 — Consolidación (Semanas 8-12)
+## Fase 2 â€” ConsolidaciÃ³n (Semanas 8-12)
 
-### Sprint 7 — UX y detalles
+### Sprint 7 â€” UX y detalles
 - [ ] Animaciones y transiciones
 - [ ] Loading states pulidos
 - [ ] Empty states
 - [ ] Toasts y notificaciones
 - [ ] Modo oscuro / claro
 
-### Sprint 8 — Rutinas predefinidas
+### Sprint 8 â€” Rutinas predefinidas
 - [ ] Biblioteca de rutinas (full body, PPL, etc.)
 - [ ] Plantillas personalizables
 - [ ] Duplicar rutinas
 
-### Sprint 9 — Análisis y gráficos
-- [ ] Gráfico de volumen semanal
+### Sprint 9 â€” AnÃ¡lisis y grÃ¡ficos
+- [ ] GrÃ¡fico de volumen semanal
 - [ ] Progreso de fuerza por ejercicio (1RM estimado)
 - [ ] Adherencia al plan (%)
 - [ ] Reportes semanales/mensuales
 
-### Sprint 10 — PWA y offline
+### Sprint 10 â€” PWA y offline
 - [ ] Configurar service worker
 - [ ] Modo offline
-- [ ] Sincronización al reconectar
-- [ ] Instalable en móvil
+- [ ] SincronizaciÃ³n al reconectar
+- [ ] Instalable en mÃ³vil
 
-### Sprint 11 — Notificaciones
+### Sprint 11 â€” Notificaciones
 - [ ] Recordatorio de entrenamiento
 - [ ] Recordatorio de comidas
 - [ ] Notificaciones push
 
-### Sprint 12 — Exportación
+### Sprint 12 â€” ExportaciÃ³n
 - [ ] Exportar datos a CSV
 - [ ] Exportar datos a JSON
 - [ ] Importar desde otras apps
 
 ---
 
-## Fase 3 — Profesional / Social (Meses 4-6)
+## Fase 3 â€” Profesional / Social (Meses 4-6)
 
-### Sprint 13 — Modo entrenador
+### Sprint 13 â€” Modo entrenador
 - [ ] Roles: user / trainer / admin
 - [ ] Panel de entrenador
-- [ ] Gestión de clientes
+- [ ] GestiÃ³n de clientes
 
-### Sprint 14 — Chat y feedback
+### Sprint 14 â€” Chat y feedback
 - [ ] Chat entrenador-cliente
 - [ ] Comentarios en entrenamientos
 
-### Sprint 15 — Integraciones
+### Sprint 15 â€” Integraciones
 - [ ] Apple Health
 - [ ] Google Fit
 - [ ] Strava
 
-### Sprint 16 — IA y recomendaciones
+### Sprint 16 â€” IA y recomendaciones
 - [ ] Recomendaciones de rutinas
 - [ ] Sugerencias nutricionales
-- [ ] Detección de estancamiento
+- [ ] DetecciÃ³n de estancamiento
 
-### Sprint 17 — Social
+### Sprint 17 â€” Social
 - [ ] Amigos / seguidores
 - [ ] Compartir progreso
-- [ ] Retos y desafíos
+- [ ] Retos y desafÃ­os
 
-### Sprint 18 — Monetización (opcional)
+### Sprint 18 â€” MonetizaciÃ³n (opcional)
 - [ ] Plan gratis vs premium
 - [ ] Suscripciones (Stripe)
 
@@ -222,26 +222,26 @@ Plan de desarrollo continuo, por fases y sprints.
 - Video llamadas con entrenadores
 - Realidad aumentada para forma de ejercicios
 - Comunidad con foros
-- Integración con gimnasios
+- IntegraciÃ³n con gimnasios
 - Programa de referidos
 
 ---
 
 ## Convenciones de este roadmap
 
-- ✅ Se actualiza al terminar cada sprint
-- ✅ Los items nuevos se agregan al backlog
-- ✅ Un sprint = 1 semana de trabajo
-- ✅ Se commitea cada avance
-- ✅ El progreso se refleja en el historial de commits
+- âœ… Se actualiza al terminar cada sprint
+- âœ… Los items nuevos se agregan al backlog
+- âœ… Un sprint = 1 semana de trabajo
+- âœ… Se commitea cada avance
+- âœ… El progreso se refleja en el historial de commits
 
 ---
 
-## Métricas por fase
+## MÃ©tricas por fase
 
-| Fase | Duración | Objetivo | Estado |
+| Fase | DuraciÃ³n | Objetivo | Estado |
 |---|---|---|---|
-| Fase 0 | 1 semana | Proyecto documentado y listo | ✅ |
-| Fase 1 | 6 semanas | MVP funcional y deployado | 🟡 En curso |
-| Fase 2 | 5 semanas | Producto pulido y completo | ⏳ |
-| Fase 3 | 12 semanas | Plataforma profesional | ⏳ |
+| Fase 0 | 1 semana | Proyecto documentado y listo | âœ… |
+| Fase 1 | 6 semanas | MVP funcional y deployado | ðŸŸ¡ En curso |
+| Fase 2 | 5 semanas | Producto pulido y completo | â³ |
+| Fase 3 | 12 semanas | Plataforma profesional | â³ |
