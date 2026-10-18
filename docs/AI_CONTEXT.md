@@ -35,8 +35,8 @@ Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 4.
 | **Repo** | https://github.com/matiasgamarra-dev/fitness-trainer-app |
 | **Owner** | Matías Gamarra (@matiasgamarra-dev) |
 | **Rama actual** | `main` |
-| **Último commit** | `6ff9d88 - test(web): agrega tests de Routines, RoutineDetail y RoutineForm (4 minutes ago)` |
-| **Cambios sin commitear** | ⚠️ Sí |
+| **Último commit** | `68db18b - feat(api): agrega endpoints de workout sets y stats (30 seconds ago)` |
+| **Cambios sin commitear** | ✅ No |
 | **Fase** | Fase 1 — MVP |
 | **Sprint actual** | Sprint 4 — Entrenamiento activo (PRÓXIMO) |
 | **Progreso global** | ~65% |
