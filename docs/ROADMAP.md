@@ -108,15 +108,15 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 4 â€” Entrenamiento (Semana 5)
 
 **Backend:**
-- [ ] Tablas `workout_sessions`, `workout_sets`
-- [ ] Endpoints de sesiones
-- [ ] Endpoint de registros de series
+- [x] Tablas `workout_sessions`, `workout_sets`
+- [x] Endpoints de sesiones
+- [x] Endpoint de registros de series
 
 **Frontend:**
-- [ ] Pantalla de entrenamiento activo
+- [x] Pantalla de entrenamiento activo
 - [ ] Timer de descanso
-- [ ] Historial de entrenamientos
-- [ ] Estadísticas básicas
+- [x] Historial de entrenamientos
+- [x] Estadísticas básicas
 
 ### Sprint 5 â€” Nutrición (Semana 6)
 
