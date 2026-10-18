@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   routineCreateSchema,
@@ -13,7 +13,7 @@ import {
 } from "../hooks/useRoutines.js";
 import { ApiError } from "../lib/api.js";
 
-// ─── Tipos ──────────────────────────────────────────────────
+// â”€â”€â”€ Tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface ExerciseEntry {
   exercise_id: string;
@@ -54,7 +54,7 @@ const EMPTY_FORM: FormState = {
   exercises: [],
 };
 
-// ─── Componente ─────────────────────────────────────────────
+// â”€â”€â”€ Componente â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function RoutineForm() {
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export default function RoutineForm() {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [selectorDay, setSelectorDay] = useState<number>(1);
 
-  // Cargar datos si es edición
+  // Cargar datos si es ediciÃ³n
   useEffect(() => {
     if (isEdit && routineQuery.data) {
       const r = routineQuery.data;
@@ -105,7 +105,7 @@ export default function RoutineForm() {
     return grouped;
   }, [form.exercises, form.days_per_week]);
 
-  // ─── Handlers ─────────────────────────────────────────────
+  // â”€â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   function openSelector(day: number) {
     setSelectorDay(day);
@@ -143,7 +143,7 @@ export default function RoutineForm() {
       const remaining = prev.exercises.filter(
         (e) => !(e.exercise_id === exercise_id && e.day_of_week === day_of_week),
       );
-      // Recalcular order_index por día
+      // Recalcular order_index por dÃ­a
       const byDay: Record<number, ExerciseEntry[]> = {};
       for (const e of remaining) {
         if (!byDay[e.day_of_week]) byDay[e.day_of_week] = [];
@@ -198,7 +198,7 @@ export default function RoutineForm() {
     if (!parsed.success) {
       setError(
         parsed.error.issues[0]?.message ??
-          "Revisá los datos del formulario.",
+          "RevisÃ¡ los datos del formulario.",
       );
       return;
     }
@@ -215,14 +215,14 @@ export default function RoutineForm() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("No se pudo guardar la rutina. Intentá de nuevo.");
+        setError("No se pudo guardar la rutina. IntentÃ¡ de nuevo.");
       }
     }
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  // ─── Render ───────────────────────────────────────────────
+  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   if (isEdit && routineQuery.isLoading) {
     return <p className="text-gray-400">Cargando rutina...</p>;
@@ -238,7 +238,7 @@ export default function RoutineForm() {
           onClick={() => navigate("/routines")}
           className="text-sm text-cyan-400 hover:text-cyan-300"
         >
-          ← Volver a rutinas
+          â† Volver a rutinas
         </button>
       </div>
     );
@@ -250,7 +250,7 @@ export default function RoutineForm() {
         onClick={() => navigate(isEdit && id ? `/routines/${id}` : "/routines")}
         className="mb-6 text-sm text-gray-400 hover:text-white"
       >
-        ← {isEdit ? "Volver al detalle" : "Volver a rutinas"}
+        â† {isEdit ? "Volver al detalle" : "Volver a rutinas"}
       </button>
 
       <h1 className="mb-8 text-3xl font-bold text-cyan-400">
@@ -258,10 +258,10 @@ export default function RoutineForm() {
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Datos básicos */}
+        {/* Datos bÃ¡sicos */}
         <section className="rounded-lg border border-gray-800 bg-[#161B22] p-6">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Datos básicos
+            Datos bÃ¡sicos
           </h2>
 
           <div className="space-y-4">
@@ -284,7 +284,7 @@ export default function RoutineForm() {
 
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wide text-gray-500">
-                Descripción
+                DescripciÃ³n
               </span>
               <textarea
                 value={form.description}
@@ -300,7 +300,7 @@ export default function RoutineForm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-1.5 block text-xs uppercase tracking-wide text-gray-500">
-                  Días por semana *
+                  DÃ­as por semana *
                 </span>
                 <input
                   type="number"
@@ -338,7 +338,7 @@ export default function RoutineForm() {
           </div>
         </section>
 
-        {/* Ejercicios por día */}
+        {/* Ejercicios por dÃ­a */}
         <section className="space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Ejercicios
@@ -365,7 +365,7 @@ export default function RoutineForm() {
 
                 {(exercisesByDay[day] ?? []).length === 0 && (
                   <p className="text-xs text-gray-500">
-                    No hay ejercicios para este día.
+                    No hay ejercicios para este dÃ­a.
                   </p>
                 )}
 
@@ -381,7 +381,7 @@ export default function RoutineForm() {
                             {ex.exercise_name}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {ex.muscle_group} · {ex.equipment}
+                            {ex.muscle_group} Â· {ex.equipment}
                           </p>
                         </div>
                         <button
