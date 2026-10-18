@@ -7,14 +7,14 @@ import { supabase } from "./supabase.js";
 
 export class ApiError extends Error {
   status: number;
-  details?: string;
+  details?: unknown;
   lockedFields?: string[];
   hint?: string;
 
   constructor(
     message: string,
     status: number,
-    options?: { details?: string; lockedFields?: string[]; hint?: string },
+    options?: { details?: unknown; lockedFields?: string[]; hint?: string },
   ) {
     super(message);
     this.name = "ApiError";
@@ -100,7 +100,7 @@ api.interceptors.response.use(
 interface BackendErrorBody {
   success?: false;
   error?: string;
-  details?: string;
+  details?: unknown;
   locked_fields?: string[];
   hint?: string;
 }
