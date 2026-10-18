@@ -7,6 +7,7 @@ import Onboarding from "./pages/Onboarding.js";
 import Profile from "./pages/Profile.js";
 import Measurements from "./pages/Measurements.js";
 import Routines from "./pages/Routines.js";
+import RoutineDetail from "./pages/RoutineDetail.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import AppLayout from "./components/AppLayout.js";
 
@@ -43,7 +44,7 @@ export default function App() {
           <Route path="/measurements" element={<Measurements />} />
           <Route path="/routines" element={<Routines />} />
           <Route path="/routines/new" element={<Routines />} />
-          <Route path="/routines/:id" element={<Routines />} />
+          <Route path="/routines/:id" element={<RoutineDetail />} />
         </Route>
 
         {/* Fallback */}
