@@ -1,4 +1,4 @@
-﻿# ðŸ”Œ API Reference
+﻿# 🔌 API Reference
 
 ## Base URL
 
@@ -10,23 +10,23 @@ http://localhost:3000/api/v1
 
 ### Health
 
-| MÃ©todo | Endpoint | Auth | DescripciÃ³n |
+| Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
 | GET | `/health` | âŒ | Health check del servidor |
 
 ### Auth
 
-| MÃ©todo | Endpoint | Auth | DescripciÃ³n |
+| Método | Endpoint | Auth | Descripción |
 |---|---|---|---|
-| GET | `/auth/me` | âœ… Bearer | Devuelve perfil del usuario autenticado |
+| GET | `/auth/me` | ✅ Bearer | Devuelve perfil del usuario autenticado |
 
 **Nota:** El registro y login **NO se hacen contra nuestra API**.
 Se hacen directamente contra **Supabase Auth** desde el frontend:
 
-- `supabase.auth.signUp({ email, password })` â†’ registro
-- `supabase.auth.signInWithPassword({ email, password })` â†’ login email
-- `supabase.auth.signInWithOAuth({ provider: 'google' })` â†’ login Google
-- `supabase.auth.signOut()` â†’ logout
+- `supabase.auth.signUp({ email, password })` →’ registro
+- `supabase.auth.signInWithPassword({ email, password })` →’ login email
+- `supabase.auth.signInWithOAuth({ provider: 'google' })` →’ login Google
+- `supabase.auth.signOut()` →’ logout
 
 
 ### Exercises
@@ -61,17 +61,17 @@ Se hacen directamente contra **Supabase Auth** desde el frontend:
 
 ### Entrenamientos
 
-| MÃ©todo | Endpoint | DescripciÃ³n |
+| Método | Endpoint | Descripción |
 |---|---|---|
 | GET | `/workouts` | Listar entrenamientos |
 | POST | `/workouts` | Registrar entrenamiento |
-| GET | `/workouts/stats` | EstadÃ­sticas |
+| GET | `/workouts/stats` | Estadísticas |
 
-### NutriciÃ³n
+### Nutrición
 
-| MÃ©todo | Endpoint | DescripciÃ³n |
+| Método | Endpoint | Descripción |
 |---|---|---|
-| GET | `/meals` | Comidas del dÃ­a |
+| GET | `/meals` | Comidas del día |
 | POST | `/meals` | Crear comida |
 | POST | `/meals/:id/items` | Agregar alimento |
 | GET | `/nutrition/goal` | Obtener objetivo |
@@ -79,7 +79,7 @@ Se hacen directamente contra **Supabase Auth** desde el frontend:
 
 ## Formato de respuesta
 
-### Ã‰xito
+### Éxito
 
 ```json
 {
@@ -94,12 +94,12 @@ Se hacen directamente contra **Supabase Auth** desde el frontend:
 ```json
 {
   "success": false,
-  "error": "DescripciÃ³n del error",
+  "error": "Descripción del error",
   "details": "Detalle opcional"
 }
 ```
 
-## AutenticaciÃ³n
+## Autenticación
 
 Los endpoints protegidos requieren header:
 
@@ -113,12 +113,12 @@ El backend verifica el JWT contra el JWKS de Supabase:
 https://[PROJECT-REF].supabase.co/auth/v1/.well-known/jwks.json
 ```
 
-## CÃ³digos de error
+## Códigos de error
 
-| CÃ³digo | Significado |
+| Código | Significado |
 |---|---|
 | 400 | Bad Request |
-| 401 | Unauthorized (token faltante o invÃ¡lido) |
+| 401 | Unauthorized (token faltante o inválido) |
 | 403 | Forbidden |
 | 404 | Not Found |
 | 500 | Internal Error |

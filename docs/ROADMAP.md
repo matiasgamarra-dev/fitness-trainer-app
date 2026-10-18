@@ -1,4 +1,4 @@
-﻿# ðŸ—ºï¸ Roadmap del Proyecto
+﻿# 🗺️ Roadmap del Proyecto
 
 Plan de desarrollo continuo, por fases y sprints.
 
@@ -10,40 +10,40 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ---
 
-## Fase 0 â€” Fundaciones (Semana 1) âœ…
+## Fase 0 â€” Fundaciones (Semana 1) ✅
 
-### Sprint 0 â€” Setup âœ… (COMPLETADO)
+### Sprint 0 â€” Setup ✅ (COMPLETADO)
 
 - [x] Crear repositorio en GitHub
 - [x] Instalar Git y Node localmente
 - [x] Estructura profesional de carpetas
-- [x] DocumentaciÃ³n inicial (README, LICENSE, CONTRIBUTING)
+- [x] Documentación inicial (README, LICENSE, CONTRIBUTING)
 - [x] Docs extendidos (ARCHITECTURE, API, DEVELOPMENT)
 
-### Sprint 0.5 â€” PlanificaciÃ³n + Setup tÃ©cnico âœ… (COMPLETADO)
+### Sprint 0.5 â€” Planificación + Setup técnico ✅ (COMPLETADO)
 
-**PlanificaciÃ³n:**
-- [x] Documento de visiÃ³n (PRODUCT.md)
+**Planificación:**
+- [x] Documento de visión (PRODUCT.md)
 - [x] Modelo de datos (DATA_MODEL.md)
-- [x] Stack tecnolÃ³gico (STACK.md)
+- [x] Stack tecnológico (STACK.md)
 - [x] Wireframes (WIREFRAMES.md)
 - [x] Roadmap detallado (este archivo)
 
-**Setup tÃ©cnico:**
+**Setup técnico:**
 - [x] Reestructurar a monorepo (apps/api, apps/web, packages/shared)
 - [x] Configurar npm workspaces
-- [x] Configurar TypeScript (raÃ­z + apps)
+- [x] Configurar TypeScript (raíz + apps)
 - [x] Configurar ESLint + Prettier
 - [x] Configurar scripts de desarrollo
 - [x] Instalar dependencias base del backend (Express)
 - [x] Primer endpoint "hola mundo" funcionando
-- [x] Script Ãºnico de docs (`docs.mjs`)
+- [x] Script único de docs (`docs.mjs`)
 
 ---
 
 ## Fase 1 â€” MVP (Semanas 2-6)
 
-### Sprint 1 â€” AutenticaciÃ³n âœ… (COMPLETADO)
+### Sprint 1 â€” Autenticación ✅ (COMPLETADO)
 
 **Infraestructura:**
 - [x] Crear proyecto Supabase
@@ -88,7 +88,7 @@ Plan de desarrollo continuo, por fases y sprints.
 **Frontend:**
 - [x] Onboarding (4 pasos)
 - [x] Pantalla de perfil
-- [x] EdiciÃ³n de datos
+- [x] Edición de datos
 - [x] Tests
 
 ### Sprint 3 â€” Rutinas (Semana 4)
@@ -116,9 +116,9 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Pantalla de entrenamiento activo
 - [ ] Timer de descanso
 - [ ] Historial de entrenamientos
-- [ ] EstadÃ­sticas bÃ¡sicas
+- [ ] Estadísticas básicas
 
-### Sprint 5 â€” NutriciÃ³n (Semana 6)
+### Sprint 5 â€” Nutrición (Semana 6)
 
 **Backend:**
 - [ ] Tablas `foods`, `meals`, `meal_items`, `nutrition_goals`
@@ -127,16 +127,16 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Buscador de alimentos
 
 **Frontend:**
-- [ ] Pantalla de nutriciÃ³n diaria
+- [ ] Pantalla de nutrición diaria
 - [ ] Buscador de alimentos
-- [ ] AÃ±adir comidas
+- [ ] Añadir comidas
 
 ### Sprint 6 â€” Progreso y Deploy (Semana 7)
 
 **Frontend:**
 - [ ] Dashboard con resumen
-- [ ] Pantalla de progreso con grÃ¡ficos (Recharts)
-- [ ] Comparativa de perÃ­odos
+- [ ] Pantalla de progreso con gráficos (Recharts)
+- [ ] Comparativa de períodos
 
 **Deploy:**
 - [ ] Deploy backend en Railway
@@ -146,7 +146,7 @@ Plan de desarrollo continuo, por fases y sprints.
 
 ---
 
-## Fase 2 â€” ConsolidaciÃ³n (Semanas 8-12)
+## Fase 2 â€” Consolidación (Semanas 8-12)
 
 ### Sprint 7 â€” UX y detalles
 - [ ] Animaciones y transiciones
@@ -160,8 +160,8 @@ Plan de desarrollo continuo, por fases y sprints.
 - [ ] Plantillas personalizables
 - [ ] Duplicar rutinas
 
-### Sprint 9 â€” AnÃ¡lisis y grÃ¡ficos
-- [ ] GrÃ¡fico de volumen semanal
+### Sprint 9 â€” Análisis y gráficos
+- [ ] Gráfico de volumen semanal
 - [ ] Progreso de fuerza por ejercicio (1RM estimado)
 - [ ] Adherencia al plan (%)
 - [ ] Reportes semanales/mensuales
@@ -169,15 +169,15 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 10 â€” PWA y offline
 - [ ] Configurar service worker
 - [ ] Modo offline
-- [ ] SincronizaciÃ³n al reconectar
-- [ ] Instalable en mÃ³vil
+- [ ] Sincronización al reconectar
+- [ ] Instalable en móvil
 
 ### Sprint 11 â€” Notificaciones
 - [ ] Recordatorio de entrenamiento
 - [ ] Recordatorio de comidas
 - [ ] Notificaciones push
 
-### Sprint 12 â€” ExportaciÃ³n
+### Sprint 12 â€” Exportación
 - [ ] Exportar datos a CSV
 - [ ] Exportar datos a JSON
 - [ ] Importar desde otras apps
@@ -189,7 +189,7 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 13 â€” Modo entrenador
 - [ ] Roles: user / trainer / admin
 - [ ] Panel de entrenador
-- [ ] GestiÃ³n de clientes
+- [ ] Gestión de clientes
 
 ### Sprint 14 â€” Chat y feedback
 - [ ] Chat entrenador-cliente
@@ -203,14 +203,14 @@ Plan de desarrollo continuo, por fases y sprints.
 ### Sprint 16 â€” IA y recomendaciones
 - [ ] Recomendaciones de rutinas
 - [ ] Sugerencias nutricionales
-- [ ] DetecciÃ³n de estancamiento
+- [ ] Detección de estancamiento
 
 ### Sprint 17 â€” Social
 - [ ] Amigos / seguidores
 - [ ] Compartir progreso
-- [ ] Retos y desafÃ­os
+- [ ] Retos y desafíos
 
-### Sprint 18 â€” MonetizaciÃ³n (opcional)
+### Sprint 18 â€” Monetización (opcional)
 - [ ] Plan gratis vs premium
 - [ ] Suscripciones (Stripe)
 
@@ -222,26 +222,26 @@ Plan de desarrollo continuo, por fases y sprints.
 - Video llamadas con entrenadores
 - Realidad aumentada para forma de ejercicios
 - Comunidad con foros
-- IntegraciÃ³n con gimnasios
+- Integración con gimnasios
 - Programa de referidos
 
 ---
 
 ## Convenciones de este roadmap
 
-- âœ… Se actualiza al terminar cada sprint
-- âœ… Los items nuevos se agregan al backlog
-- âœ… Un sprint = 1 semana de trabajo
-- âœ… Se commitea cada avance
-- âœ… El progreso se refleja en el historial de commits
+- ✅ Se actualiza al terminar cada sprint
+- ✅ Los items nuevos se agregan al backlog
+- ✅ Un sprint = 1 semana de trabajo
+- ✅ Se commitea cada avance
+- ✅ El progreso se refleja en el historial de commits
 
 ---
 
-## MÃ©tricas por fase
+## Métricas por fase
 
-| Fase | DuraciÃ³n | Objetivo | Estado |
+| Fase | Duración | Objetivo | Estado |
 |---|---|---|---|
-| Fase 0 | 1 semana | Proyecto documentado y listo | âœ… |
+| Fase 0 | 1 semana | Proyecto documentado y listo | ✅ |
 | Fase 1 | 6 semanas | MVP funcional y deployado | ðŸŸ¡ En curso |
 | Fase 2 | 5 semanas | Producto pulido y completo | â³ |
 | Fase 3 | 12 semanas | Plataforma profesional | â³ |

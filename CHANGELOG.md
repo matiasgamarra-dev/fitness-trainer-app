@@ -1,4 +1,4 @@
-# 📝 Changelog
+﻿# 📝 Changelog
 
 Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 
