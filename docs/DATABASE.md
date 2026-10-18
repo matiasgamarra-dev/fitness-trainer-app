@@ -170,7 +170,66 @@ Ejercicios asignados a una rutina, agrupados por día.
 
 ---
 
+### `public.workout_sessions`
+
+Sesiones de entrenamiento. Una por vez activa (`finished_at IS NULL`) por usuario.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID | PK, `gen_random_uuid()` |
+| `user_id` | UUID | NOT NULL, FK → `public.users.id`, ON DELETE CASCADE |
+| `routine_id` | UUID | NULL, FK → `public.routines.id`, ON DELETE SET NULL |
+| `routine_name` | VARCHAR(100) | NOT NULL (snapshot del nombre al iniciar) |
+| `day_of_week` | INT | NULL, CHECK: 1 a 7 |
+| `started_at` | TIMESTAMPTZ | NOT NULL, default `now()` |
+| `finished_at` | TIMESTAMPTZ | NULL = sesión activa sin terminar |
+| `notes` | TEXT | Opcional |
+| `created_at` | TIMESTAMPTZ | Default `now()` |
+| `updated_at` | TIMESTAMPTZ | Trigger `trg_workout_sessions_updated_at` |
+
+**Índices:**
+
+- `idx_workout_sessions_user_started (user_id, started_at DESC)`
+- `idx_workout_sessions_user_active (user_id) WHERE finished_at IS NULL` (parcial)
+
+**RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) sobre `auth.uid() = user_id`.
+
+**Trigger:** `trg_workout_sessions_updated_at` (BEFORE UPDATE) → actualiza `updated_at`.
+
+**Regla de negocio:** solo 1 sesión activa (`finished_at IS NULL`) por usuario. Validado en backend (`409 Conflict`).
+
+---
+
+### `public.workout_sets`
+
+Series registradas dentro de una sesión.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | UUID | PK, `gen_random_uuid()` |
+| `session_id` | UUID | NOT NULL, FK → `public.workout_sessions.id`, ON DELETE CASCADE |
+| `exercise_id` | UUID | NOT NULL, FK → `public.exercises.id`, ON DELETE RESTRICT |
+| `set_number` | INT | NOT NULL, CHECK: >= 1 (calculado por backend: MAX+1 por ejercicio en la sesión) |
+| `weight_kg` | NUMERIC(6,2) | NULL = peso corporal / no aplica |
+| `reps` | INT | NOT NULL, CHECK: >= 1 |
+| `rpe` | NUMERIC(3,1) | NULL, CHECK: 1 a 10 (esfuerzo percibido) |
+| `is_warmup` | BOOLEAN | NOT NULL, default false |
+| `completed_at` | TIMESTAMPTZ | NOT NULL, default `now()` |
+| `notes` | TEXT | Opcional |
+
+**Constraint único:** `(session_id, exercise_id, set_number)` → evita duplicar la misma serie.
+
+**Índices:**
+
+- `idx_workout_sets_session (session_id, exercise_id, set_number)`
+- `idx_workout_sets_exercise (exercise_id)`
+
+**RLS:** habilitado. 4 políticas (SELECT, INSERT, UPDATE, DELETE) con `EXISTS` sobre `workout_sessions.user_id = auth.uid()`.
+
+---
+
 ## Cómo aplicar migraciones
+
 
 ### Opción A — SQL Editor (manual, actual)
 
