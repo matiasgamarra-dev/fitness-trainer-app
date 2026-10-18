@@ -1,9 +1,12 @@
-﻿import { Router, type Response } from "express";
+import { Router, type Response } from "express";
 import { verifyUser, type AuthRequest } from "../middleware/auth.js";
 import { supabaseAdmin } from "../config/supabase.js";
 import {
   CreateMealSchema,
   UpdateMealSchema,
+  CreateMealItemSchema,
+  UpdateMealItemSchema,
+  UpsertNutritionGoalSchema,
   FOOD_CATEGORIES,
 } from "@fitness-trainer/shared";
 
@@ -310,6 +313,339 @@ router.delete("/meals/:id", verifyUser, async (req: AuthRequest, res: Response) 
     }
 
     res.status(204).send();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ success: false, error: "Internal server error", details: message });
+  }
+});
+
+// ─── POST /api/v1/meals/:id/items ────────────────────────────
+// Agrega un alimento a la comida. Los macros se calculan a partir del food
+// y quedan como snapshot (no se recalculan si el catálogo cambia).
+router.post("/meals/:id/items", verifyUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const { id } = req.params;
+
+    const parsed = CreateMealItemSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        success: false,
+        error: "Validation failed",
+        details: parsed.error.flatten(),
+      });
+      return;
+    }
+
+    // 1. Verificar meal + ownership
+    const { data: meal, error: mealError } = await supabaseAdmin
+      .from("meals")
+      .select("id, user_id")
+      .eq("id", id)
+      .single();
+
+    if (mealError || !meal) {
+      res.status(404).json({ success: false, error: "Meal not found" });
+      return;
+    }
+
+    if (meal.user_id !== userId) {
+      res.status(403).json({
+        success: false,
+        error: "Forbidden",
+        hint: "No podés modificar comidas de otro usuario.",
+      });
+      return;
+    }
+
+    // 2. Buscar el food
+    const { data: food, error: foodError } = await supabaseAdmin
+      .from("foods")
+      .select("id, name, kcal_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g")
+      .eq("id", parsed.data.food_id)
+      .single();
+
+    if (foodError || !food) {
+      res.status(404).json({ success: false, error: "Food not found" });
+      return;
+    }
+
+    // 3. Calcular macros según quantity_g
+    const factor = parsed.data.quantity_g / 100;
+    const kcal = Number((food.kcal_per_100g * factor).toFixed(2));
+    const protein_g = Number((food.protein_per_100g * factor).toFixed(2));
+    const carbs_g = Number((food.carbs_per_100g * factor).toFixed(2));
+    const fat_g = Number((food.fat_per_100g * factor).toFixed(2));
+
+    // 4. Insertar
+    const { data: created, error: createError } = await supabaseAdmin
+      .from("meal_items")
+      .insert({
+        meal_id: id,
+        food_id: food.id,
+        food_name: food.name,
+        quantity_g: parsed.data.quantity_g,
+        kcal,
+        protein_g,
+        carbs_g,
+        fat_g,
+      })
+      .select("*")
+      .single();
+
+    if (createError) {
+      res.status(500).json({ success: false, error: "Database error", details: createError.message });
+      return;
+    }
+
+    res.status(201).json({ success: true, data: created, message: "Meal item created" });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ success: false, error: "Internal server error", details: message });
+  }
+});
+
+// ─── PUT /api/v1/meals/:id/items/:itemId ─────────────────────
+// Edita la cantidad de un item. Recalcula macros con el food original.
+router.put("/meals/:id/items/:itemId", verifyUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const { id, itemId } = req.params;
+
+    const parsed = UpdateMealItemSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        success: false,
+        error: "Validation failed",
+        details: parsed.error.flatten(),
+      });
+      return;
+    }
+
+    // 1. Verificar item + ownership de la meal via join
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from("meal_items")
+      .select("id, meal_id, food_id, meals!inner(user_id)")
+      .eq("id", itemId)
+      .eq("meal_id", id)
+      .single();
+
+    if (fetchError || !existing) {
+      res.status(404).json({ success: false, error: "Meal item not found" });
+      return;
+    }
+
+    type ItemWithMeal = { meals: { user_id: string } };
+    const mealUserId = (existing as unknown as ItemWithMeal).meals.user_id;
+
+    if (mealUserId !== userId) {
+      res.status(403).json({
+        success: false,
+        error: "Forbidden",
+        hint: "No podés modificar items de otro usuario.",
+      });
+      return;
+    }
+
+    // 2. Traer el food original para recalcular
+    const { data: food, error: foodError } = await supabaseAdmin
+      .from("foods")
+      .select("kcal_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g")
+      .eq("id", existing.food_id)
+      .single();
+
+    if (foodError || !food) {
+      res.status(404).json({
+        success: false,
+        error: "Original food not found",
+        hint: "El alimento original ya no existe en el catálogo. Eliminá el item y creá uno nuevo.",
+      });
+      return;
+    }
+
+    // 3. Recalcular
+    const factor = parsed.data.quantity_g / 100;
+    const kcal = Number((food.kcal_per_100g * factor).toFixed(2));
+    const protein_g = Number((food.protein_per_100g * factor).toFixed(2));
+    const carbs_g = Number((food.carbs_per_100g * factor).toFixed(2));
+    const fat_g = Number((food.fat_per_100g * factor).toFixed(2));
+
+    // 4. Update
+    const { data: updated, error: updateError } = await supabaseAdmin
+      .from("meal_items")
+      .update({
+        quantity_g: parsed.data.quantity_g,
+        kcal,
+        protein_g,
+        carbs_g,
+        fat_g,
+      })
+      .eq("id", itemId)
+      .select("*")
+      .single();
+
+    if (updateError) {
+      res.status(500).json({ success: false, error: "Database error", details: updateError.message });
+      return;
+    }
+
+    res.json({ success: true, data: updated, message: "Meal item updated" });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ success: false, error: "Internal server error", details: message });
+  }
+});
+
+// ─── DELETE /api/v1/meals/:id/items/:itemId ─────────────────
+router.delete("/meals/:id/items/:itemId", verifyUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const { id, itemId } = req.params;
+
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from("meal_items")
+      .select("id, meal_id, meals!inner(user_id)")
+      .eq("id", itemId)
+      .eq("meal_id", id)
+      .single();
+
+    if (fetchError || !existing) {
+      res.status(404).json({ success: false, error: "Meal item not found" });
+      return;
+    }
+
+    type ItemWithMeal = { meals: { user_id: string } };
+    const mealUserId = (existing as unknown as ItemWithMeal).meals.user_id;
+
+    if (mealUserId !== userId) {
+      res.status(403).json({
+        success: false,
+        error: "Forbidden",
+        hint: "No podés eliminar items de otro usuario.",
+      });
+      return;
+    }
+
+    const { error: deleteError } = await supabaseAdmin
+      .from("meal_items")
+      .delete()
+      .eq("id", itemId);
+
+    if (deleteError) {
+      res.status(500).json({ success: false, error: "Database error", details: deleteError.message });
+      return;
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ success: false, error: "Internal server error", details: message });
+  }
+});
+
+// ─── GET /api/v1/nutrition/goal ──────────────────────────────
+// Devuelve el objetivo nutricional del usuario. 404 si no existe.
+router.get("/nutrition/goal", verifyUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const { data: goal, error: goalError } = await supabaseAdmin
+      .from("nutrition_goals")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (goalError) {
+      res.status(500).json({ success: false, error: "Database error", details: goalError.message });
+      return;
+    }
+
+    if (!goal) {
+      res.status(404).json({
+        success: false,
+        error: "Nutrition goal not found",
+        hint: "Configurá un objetivo con PUT /nutrition/goal.",
+      });
+      return;
+    }
+
+    res.json({ success: true, data: goal, message: "OK" });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ success: false, error: "Internal server error", details: message });
+  }
+});
+
+// ─── PUT /api/v1/nutrition/goal ──────────────────────────────
+// Crea o reemplaza el objetivo nutricional (upsert 1:1).
+router.put("/nutrition/goal", verifyUser, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const parsed = UpsertNutritionGoalSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        success: false,
+        error: "Validation failed",
+        details: parsed.error.flatten(),
+      });
+      return;
+    }
+
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from("nutrition_goals")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (existingError) {
+      res.status(500).json({ success: false, error: "Database error", details: existingError.message });
+      return;
+    }
+
+    if (existing) {
+      const { data: updated, error: updateError } = await supabaseAdmin
+        .from("nutrition_goals")
+        .update(parsed.data)
+        .eq("id", existing.id)
+        .select("*")
+        .single();
+
+      if (updateError) {
+        res.status(500).json({ success: false, error: "Database error", details: updateError.message });
+        return;
+      }
+
+      res.json({ success: true, data: updated, message: "Nutrition goal updated" });
+      return;
+    }
+
+    const { data: created, error: createError } = await supabaseAdmin
+      .from("nutrition_goals")
+      .insert({
+        user_id: userId,
+        daily_kcal: parsed.data.daily_kcal,
+        protein_g: parsed.data.protein_g,
+        carbs_g: parsed.data.carbs_g,
+        fat_g: parsed.data.fat_g,
+      })
+      .select("*")
+      .single();
+
+    if (createError) {
+      res.status(500).json({ success: false, error: "Database error", details: createError.message });
+      return;
+    }
+
+    res.status(201).json({ success: true, data: created, message: "Nutrition goal created" });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({ success: false, error: "Internal server error", details: message });
