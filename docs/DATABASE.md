@@ -31,6 +31,7 @@ Ver [`supabase/README.md`](../supabase/README.md) para el flujo detallado.
 | `20260930000001_add_days_per_week_to_users.sql` | 2 | Agrega `days_per_week` (INT, 1-7) a `public.users` con CHECK |
 | `20261018000001_create_exercises_routines.sql` | 3 | Crea `exercises`, `routines`, `routine_exercises` + RLS |
 | `20261018000002_seed_exercises.sql` | 3 | Seed de 55 ejercicios base |
+| `20261018000003_create_workout_sessions.sql` | ? | (sin descripción) |
 
 ---
 
