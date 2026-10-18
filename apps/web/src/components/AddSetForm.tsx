@@ -1,7 +1,7 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useLogSet } from "../hooks/useWorkoutSets.js";
 import { ApiError } from "../lib/api.js";
-import type { Exercise } from "../hooks/useExercises.js";
+import type { Exercise } from "@fitness-trainer/shared";
 
 interface AddSetFormProps {
   sessionId: string;
