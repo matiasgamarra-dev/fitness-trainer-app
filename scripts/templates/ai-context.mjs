@@ -10,9 +10,9 @@
  * NO editar docs/AI_CONTEXT.md a mano. Se regenera desde aca.
  */
 
-export const CURRENT_SPRINT = "Sprint 4 — Entrenamiento activo (PRÓXIMO)";
+export const CURRENT_SPRINT = "Sprint 5 — Nutrición (PRÓXIMO)";
 export const CURRENT_PHASE = "Fase 1 — MVP";
-export const GLOBAL_PROGRESS = "~65%";
+export const GLOBAL_PROGRESS = "~75%";
 
 export function renderAiContext({ git, date, historial }) {
   const workingTree = git.status && git.status.trim() !== "" ? "⚠️ Sí" : "✅ No";
@@ -26,23 +26,26 @@ export function renderAiContext({ git, date, historial }) {
 
 ## 🚦 PRÓXIMO PASO INMEDIATO
 
-**Sprint 3 (Rutinas) cerrado.** Arrancar **Sprint 4 — Entrenamiento activo**.
+**Sprint 4 (Entrenamiento activo) cerrado.** Arrancar **Sprint 5 — Nutrición**.
 
 Backend a construir:
 
-- Migración: tablas \`workout_sessions\`, \`workout_sets\` + RLS
-- Endpoints \`GET/POST/PUT /api/v1/workouts\` y \`GET /api/v1/workouts/stats\`
-- Schemas Zod en \`packages/shared\` (workout.ts)
+- Migración: tablas \`foods\`, \`meals\`, \`meal_items\`, \`nutrition_goals\` + RLS
+- Seed de ~200 alimentos base
+- Endpoints CRUD de comidas y items
+- Endpoint de objetivo nutricional
+- Schemas Zod en \`packages/shared\` (nutrition.ts)
 - Tests
 
 Frontend a construir:
 
-- \`/workouts\` — historial de entrenamientos
-- \`/workouts/new\` — iniciar sesión (seleccionar rutina + día)
-- \`/workouts/:id\` — sesión activa con timer + registrar series
-- Dashboard: mostrar rutina activa y último entrenamiento
+- \`/nutrition\` — pantalla del día (desayuno, almuerzo, cena, snacks)
+- Buscador de alimentos
+- Agregar items a comidas con macros
+- Configuración de objetivo nutricional (calorías + macros)
+- Dashboard: resumen del día (calorías, macros)
 
-Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 4.
+Ver [ROADMAP.md](./ROADMAP.md) para el detalle del Sprint 5.
 
 ---
 
@@ -270,6 +273,25 @@ Monorepo, docs, CI/CD, Supabase configurado, Auth completo (email + Google OAuth
 
 **Total tests al cierre del Sprint 3:** 26 (API) + 48 (Web) = **74 tests verdes**.
 
+### Sprint 4 — Entrenamiento activo COMPLETO (S.4.0 a S.4.10)
+
+- **S.4.0** — Migración \`workout_sessions\`, \`workout_sets\` + RLS + trigger + índices. FKs con \`ALTER TABLE ADD CONSTRAINT\` (no inline).
+- **S.4.1** — Schemas Zod en \`packages/shared/src/schemas/workout.ts\` + tipos.
+- **S.4.2a** — Endpoints CRUD sesiones: \`GET/POST/PUT/DELETE /api/v1/workouts\`.
+- **S.4.2b** — Endpoints sets + stats: \`POST/PUT/DELETE /api/v1/workouts/:id/sets\` y \`GET /api/v1/workouts/stats\`. Regla: solo 1 sesión activa por user (409). \`set_number\` calculado por backend (MAX+1).
+- **S.4.3** — 15 tests backend (\`workouts.test.ts\`).
+- **S.4.4** — 9 hooks React Query (\`useWorkouts.ts\` + \`useWorkoutSets.ts\`).
+- **S.4.5** — Pantalla \`/workouts\` (historial con tabs Todos/Activos).
+- **S.4.6** — Pantalla \`/workouts/new\` (form rutina + día + 409 con link a sesión activa).
+- **S.4.7** — Pantalla \`/workouts/:id\` (timer + AddSetForm + sets agrupados + edición inline + finalizar + eliminar).
+- **S.4.8** — Dashboard con rutina activa + sesión en curso + 3 stats.
+- **S.4.9** — 25 tests web (\`Workouts.test.tsx\`, \`WorkoutForm.test.tsx\`, \`WorkoutActive.test.tsx\`).
+- **S.4.10** — Cierre: \`DATABASE.md\`, \`API.md\`, \`ROADMAP.md\` 6/7 items, \`CHANGELOG.md\` 5 entradas.
+
+**Total tests al cierre del Sprint 4:** 41 (API) + 73 (Web) = **114 tests verdes**.
+
+**Deuda técnica:** "Timer de descanso" del roadmap quedó pendiente. El \`WorkoutTimer\` cuenta la duración total de la sesión, no un timer entre series. Agendado para Sprint 9 o mejora puntual.
+
 ---
 
 ## 📋 Próximos sprints (resumen)
@@ -324,6 +346,26 @@ VITE_API_URL=http://localhost:3000/api/v1
 - Si el frontend tira \`Network Error\`, primero verificar que **ambos** dev servers estén corriendo (web en 5173, api en 3000)
 - **Zod 4** \`.uuid()\` solo acepta UUID v4 → usar \`xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\` en tests
 - **PowerShell + chat**: pegar comandos línea por línea, nunca bloques multilínea con \`@{...}\` o \`foreach\`
+- **PowerShell + emojis**: pegar archivos con emojis desde el chat puede romper el encoding. Guardar con VS Code "Save with Encoding → UTF-8 with BOM" o crear con \`Out-File -Encoding utf8\`.
+- **PowerShell + Replace**: el método Replace NO modifica el archivo en disco, solo devuelve un string nuevo. Siempre hacer [System.IO.File]::WriteAllText(path, content, encoding) después. Si dice "OK" pero el archivo no cambia, se olvidó el WriteAllText.
+- **PowerShell + WriteAllText**: los paths relativos se resuelven contra [Environment]::CurrentDirectory, no contra el cwd de PowerShell. Usar siempre paths absolutos.
+- **PowerShell + Resolve-Path**: falla si el archivo no existe todavía. Para archivos nuevos, pasar el string del path directo a WriteAllText.
+- **PowerShell + heredoc**: el here-string se corta si el contenido tiene tres backticks markdown al principio de línea, o si es muy largo (>50 líneas). Usar Set-Content con array de líneas.
+- **PowerShell + backticks en template literals**: si el .mjs genera un .md con template literal, TODOS los backticks del contenido tienen que ir escapados con barra invertida + backtick. Un backtick suelto rompe el template y tira SyntaxError.
+- **PowerShell + base64**: validar que el string matchee ^[A-Za-z0-9+/]*={0,2}$ antes de FromBase64String. Un solo asterisco, comilla doble, espacio, o salto de línea rompe con FormatException.
+- **JS/TS + && y ??**: no se pueden mezclar sin paréntesis. a && b ?? c es error de sintaxis. Usar a && (b ?? c).
+- **tsc --noEmit vs Vitest**: Vitest no chequea tipos. Siempre correr tsc --noEmit antes de commitear, no solo los tests.
+- **Fixtures con tipos literales**: const FAKE = { finished_at: null } infiere finished_at: null (literal). { ...FAKE, finished_at: "string" } falla. Solución: anotar con interface explícita (const FAKE: FakeSession = {...}).
+- **Vitest + vi.mock**: si el componente usa varias exportaciones del mismo módulo, el mock tiene que exportar TODAS. Si AddSetForm usa useLogSet y WorkoutActive usa useDeleteSet, ambos importan de useWorkoutSets.js → el mock exporta ambos.
+- **getByText + JSX interpolado**: JSX como Serie con interpolación crea múltiples text nodes. getByText("80") NO matchea. Solución: getByText((_, el) => el?.textContent?.includes("...") ?? false).
+- **ApiError.details**: debe ser unknown (no string) para soportar 409 con objeto ({ active_session_id }). Cambio hecho en apps/web/src/lib/api.ts.
+- **docs -- changelog**: deduplica entradas (no agrega 2 veces la misma, tira warning). Si entró basura (--message="..." literal), borrarla a mano con Replace + WriteAllText.
+- **docs -- roadmap --item**: match parcial (substring). --item="workout_sessions" matchea "Tablas workout_sessions, workout_sets". Respeta tildes en UTF-8 aunque Select-String muestre encoding raro.
+- **Migraciones SQL + FKs**: usar ALTER TABLE ADD CONSTRAINT después del CREATE TABLE, no inline (REFERENCES inline falla con dependencias entre tablas). Mejor práctica Supabase.
+- **DB con tablas relacionadas**: el orden importa. Primero crear workout_sessions, después workout_sets (que referencia a sessions y exercises), después los índices y el RLS.
+- **Testing: bloques de 50 líneas**: archivos de test largos (>80 líneas) se parten en 3-4 bloques con Set-Content (primero) + Add-Content (siguientes), ≤50 líneas cada uno.
+- **Testing: mock + router**: MemoryRouter con initialEntries + Routes/Route para que useParams funcione. vi.mock("react-router-dom") con useNavigate: () => navigateMock para el resto.
+- **Regla de trabajo con IA**: un comando por paste, Enter → esperar prompt → siguiente. Nunca pegar output de error como comando. Nunca pegar markdown del chat como comando. Nunca ejecutar plantillas con ..., X, TODO.
 - **PowerShell + UTF-8**: los archivos que se escriben con \`Set-Content -Encoding utf8\` mantienen el encoding; los que se pegan por chat pueden perder tildes/emojis
 
 ---
