@@ -1,10 +1,12 @@
-﻿# 📝 Changelog
+# 📝 Changelog
 
 Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 
 ## [Unreleased]
 
 ### Added
+- agrega 15 tests backend + 25 tests web para workouts (2026-10-18)
+- Sprint 4: entrenamiento activo completo (migracion, schemas, endpoints, hooks, 4 pantallas, 40 tests) (2026-10-18)
 - Sprint 3: rutinas con exercises, routines y routine_exercises + endpoints + UI (2026-10-18)
 - agrega 15 tests de Profile, Onboarding y Measurements (19 tests web totales) (2026-10-18)
 - agrega cliente API, hooks de React Query, layout, onboarding, perfil y medidas (E.2 + E.3) (2026-09-30)
@@ -16,6 +18,13 @@ Basado en [Keep a Changelog](https://keepachangelog.com/es/1.0.0/).
 - Documentación inicial completa
 - Estructura profesional de carpetas
 - LICENSE MIT
+
+### Fixed
+- workout_sets usa ALTER TABLE ADD CONSTRAINT para FKs (no inline) (2026-10-18)
+
+### Changed
+- API.md con 9 endpoints de workouts (2026-10-18)
+- DATABASE.md con secciones de workout_sessions y workout_sets (2026-10-18)
 
 ## [0.1.0] - 2026-09-27
 
