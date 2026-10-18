@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+﻿import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/auth.js";
 
 interface NavItem {
@@ -10,6 +10,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/profile", label: "Perfil" },
   { to: "/measurements", label: "Medidas" },
+  { to: "/routines", label: "Rutinas" },
 ];
 
 export default function AppLayout() {
@@ -52,7 +53,7 @@ export default function AppLayout() {
             onClick={handleSignOut}
             className="rounded px-3 py-1.5 text-sm text-gray-400 transition hover:bg-gray-800 hover:text-white"
           >
-            Cerrar sesión
+            Cerrar sesiÃ³n
           </button>
         </div>
       </header>
