@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+﻿import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   render,
   screen,
@@ -19,7 +19,7 @@ class ResizeObserverMock {
   unobserve() {}
   disconnect() {}
 }
-global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 vi.mock("../src/hooks/useMeasurements.js", () => ({
   useMeasurements: vi.fn(),
@@ -54,7 +54,7 @@ const FAKE_MEASUREMENT_2 = {
   id: "m-2",
   date: "2026-09-27",
   weight_kg: 78.0,
-  body_fat_pct: null,
+  body_fat_pct: 17,
   week_start: "2026-09-21",
   week_end: "2026-09-27",
 };
@@ -97,7 +97,7 @@ describe("Measurements", () => {
     );
   }
 
-  it("renderiza el formulario vacío cuando no hay medidas", () => {
+  it("renderiza el formulario vacÃ­o cuando no hay medidas", () => {
     mockMeasurementsList({ data: [] });
     renderMeasurements();
 
@@ -108,7 +108,7 @@ describe("Measurements", () => {
     expect(screen.getByPlaceholderText("Ej: 78.5")).toBeInTheDocument();
   });
 
-  it("muestra una medida en el historial (sin gráfico con 1 sola)", () => {
+  it("muestra una medida en el historial (sin grÃ¡fico con 1 sola)", () => {
     mockMeasurementsList({ data: [FAKE_MEASUREMENT_1] });
     renderMeasurements();
 
@@ -116,11 +116,11 @@ describe("Measurements", () => {
     expect(screen.getByText("78.5 kg")).toBeInTheDocument();
     expect(screen.getByText("18%")).toBeInTheDocument();
 
-    // Con solo 1 medida, NO debe aparecer el gráfico
+    // Con solo 1 medida, NO debe aparecer el grÃ¡fico
     expect(screen.queryByText("Evolución del peso")).not.toBeInTheDocument();
   });
 
-  it("muestra el gráfico cuando hay 2 o más medidas", () => {
+  it("muestra el grÃ¡fico cuando hay 2 o mÃ¡s medidas", () => {
     mockMeasurementsList({
       data: [FAKE_MEASUREMENT_1, FAKE_MEASUREMENT_2],
     });
@@ -137,7 +137,7 @@ describe("Measurements", () => {
     expect(screen.getByText("Cargando…")).toBeInTheDocument();
   });
 
-  it("submit del form llama a createMutation.mutateAsync con payload válido", async () => {
+  it("submit del form llama a createMutation.mutateAsync con payload vÃ¡lido", async () => {
     mockMeasurementsList({ data: [] });
     createMutateAsyncMock.mockResolvedValueOnce(undefined);
 
