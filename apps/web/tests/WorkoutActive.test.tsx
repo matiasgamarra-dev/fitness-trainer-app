@@ -39,7 +39,35 @@ const FAKE_EXERCISE = {
   created_at: "2026-10-01T00:00:00Z",
 };
 
-const FAKE_SESSION_ACTIVE = {
+interface FakeSession {
+  id: string;
+  user_id: string;
+  routine_id: string;
+  routine_name: string;
+  day_of_week: number;
+  started_at: string;
+  finished_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  sets: FakeSet[];
+}
+
+interface FakeSet {
+  id: string;
+  session_id: string;
+  exercise_id: string;
+  set_number: number;
+  weight_kg: number | null;
+  reps: number;
+  rpe: number | null;
+  is_warmup: boolean;
+  completed_at: string;
+  notes: string | null;
+  exercise: typeof FAKE_EXERCISE;
+}
+
+const FAKE_SESSION_ACTIVE: FakeSession = {
   id: "w-1",
   user_id: "u-1",
   routine_id: "r-1",
@@ -53,12 +81,12 @@ const FAKE_SESSION_ACTIVE = {
   sets: [],
 };
 
-const FAKE_SESSION_FINISHED = {
+const FAKE_SESSION_FINISHED: FakeSession = {
   ...FAKE_SESSION_ACTIVE,
   finished_at: "2026-10-18T11:00:00Z",
 };
 
-const FAKE_SET = {
+const FAKE_SET: FakeSet = {
   id: "set-1",
   session_id: "w-1",
   exercise_id: "ex-1",
@@ -103,7 +131,7 @@ describe("WorkoutActive", () => {
   });
 
   function mockWorkout(opts: {
-    data?: typeof FAKE_SESSION_ACTIVE | null;
+    data?: FakeSession | null;
     isLoading?: boolean;
     isError?: boolean;
   }) {

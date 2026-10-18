@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Workouts from "../src/pages/Workouts.js";
@@ -17,7 +17,20 @@ vi.mock("../src/hooks/useWorkouts.js", () => ({
   useWorkouts: vi.fn(),
 }));
 
-const FAKE_WORKOUT_1 = {
+interface FakeWorkout {
+  id: string;
+  user_id: string;
+  routine_id: string;
+  routine_name: string;
+  day_of_week: number;
+  started_at: string;
+  finished_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+const FAKE_WORKOUT_1: FakeWorkout = {
   id: "w-1",
   user_id: "u-1",
   routine_id: "r-1",
@@ -30,7 +43,7 @@ const FAKE_WORKOUT_1 = {
   updated_at: "2026-10-18T11:00:00Z",
 };
 
-const FAKE_WORKOUT_2 = {
+const FAKE_WORKOUT_2: FakeWorkout = {
   ...FAKE_WORKOUT_1,
   id: "w-2",
   routine_name: "Pull Day",
@@ -44,7 +57,7 @@ describe("Workouts", () => {
   });
 
   function mockWorkouts(opts: {
-    data?: typeof FAKE_WORKOUT_1[];
+    data?: FakeWorkout[];
     isLoading?: boolean;
     isError?: boolean;
   }) {
