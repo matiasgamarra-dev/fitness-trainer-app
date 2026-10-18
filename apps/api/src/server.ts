@@ -8,6 +8,7 @@ import measurementsRouter from "./routes/measurements.js";
 import exercisesRouter from "./routes/exercises.js";
 import routinesRouter from "./routes/routines.js";
 import workoutsRouter from "./routes/workouts.js";
+import nutritionRouter from "./routes/nutrition.js";
 
 export function createServer(): express.Express {
   const app = express();
@@ -25,6 +26,7 @@ export function createServer(): express.Express {
   app.use("/api/v1/exercises", exercisesRouter);
   app.use("/api/v1/routines", routinesRouter);
   app.use("/api/v1/workouts", workoutsRouter);
+  app.use("/api/v1", nutritionRouter);
 
   return app;
 }
